@@ -1,0 +1,52 @@
+# Ignorar archivos y carpetas de compilación de LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.xdv
+*.dvi
+*.ps
+
+
+# Ignorar cachés de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Ignorar entornos virtuales de Python
+env/
+venv/
+ENV/
+VENV/
+.venv/
+.env/
+
+# Ignorar archivos de configuración de Jupyter
+.ipynb_checkpoints/
+
+# Ignorar archivos temporales del sistema
+.DS_Store
+Thumbs.db
