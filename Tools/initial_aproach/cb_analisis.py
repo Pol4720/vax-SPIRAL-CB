@@ -4,6 +4,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from scipy import stats
+from ..src.model import *
+from ..src.model_vaccine import *
+
 
 # Configuración de la página
 st.set_page_config(page_title="Análisis Costo-Beneficio Leptospirosis", layout="wide")

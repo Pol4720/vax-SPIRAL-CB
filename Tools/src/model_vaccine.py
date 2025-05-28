@@ -1,35 +1,58 @@
 import numpy as np
 from scipy.integrate import solve_ivp
+import streamlit as st
 import matplotlib.pyplot as plt
 
 class LeptospirosisVaccineModel:
     def __init__(self, params=None, initial_conditions=None, t_span=(0, 365)):
         # Default parameters
+        self.param_comments = {
+            'Λ': "Human recruitment rate",
+            'Π': "Rodent recruitment rate",
+            'β1': "Rodent-to-human transmission",
+            'β2': "Environment-to-human transmission",
+            'β3': "Human-to-rodent transmission",
+            'γ': "Immunity waning (recovery)",
+            'μ': "Human natural death rate",
+            'μv': "Rodent natural death rate",
+            'μb': "Bacteria death rate",
+            'θ': "Latent to infectious rate",
+            'α': "Disease-induced death",
+            'δ': "Recovery rate (infectious)",
+            'ρ': "Rodent immunity waning",
+            'σ': "Rodent recovery rate",
+            'κ': "Pathogen environment saturation constant",
+            'τ1': "Pathogen shedding from humans",
+            'τ2': "Pathogen shedding from rodents",
+            'ϕ': "Vaccination rate of susceptible humans",
+            'ε': "Vaccine efficacy",
+            'ω': "Vaccine immunity waning (about 6 months)"
+        }
         self.params = params or {
-            'Λ': 50,       # Human recruitment rate
-            'Π': 30,       # Rodent recruitment rate
-            'β1': 0.02,    # Rodent-to-human transmission
-            'β2': 0.01,    # Environment-to-human transmission
-            'β3': 0.03,    # Human-to-rodent transmission
-            'γ': 0.01,     # Immunity waning (recovery)
-            'μ': 0.01,     # Human natural death rate
-            'μv': 0.01,    # Rodent natural death rate
-            'μb': 0.05,    # Bacteria death rate
-            'θ': 0.2,      # Latent to infectious rate
-            'α': 0.01,     # Disease-induced death
-            'δ': 0.1,      # Recovery rate (infectious)
-            'ρ': 0.05,     # Rodent immunity waning
-            'σ': 0.1,      # Rodent recovery rate
-            'κ': 10,       # Pathogen environment saturation constant
-            'τ1': 0.5,     # Pathogen shedding from humans
-            'τ2': 0.3,     # Pathogen shedding from rodents
-            'ϕ': 0.03,     # Vaccination rate of susceptible humans
-            'ε': 0.95,     # Vaccine efficacy
-            'ω': 1/180     # Vaccine immunity waning (about 6 months)
+            'Λ': 50,
+            'Π': 30,
+            'β1': 0.02,
+            'β2': 0.01,
+            'β3': 0.03,
+            'γ': 0.01,
+            'μ': 0.01,
+            'μv': 0.01,
+            'μb': 0.05,
+            'θ': 0.2,
+            'α': 0.01,
+            'δ': 0.1,
+            'ρ': 0.05,
+            'σ': 0.1,
+            'κ': 10,
+            'τ1': 0.5,
+            'τ2': 0.3,
+            'ϕ': 0.2,
+            'ε': 0.95,
+            'ω': 1/180
         }
         # Default initial conditions
         self.initial_conditions = initial_conditions or [
-            500,  # Sh
+            1000,  # Sh
             10,   # Eh
             5,    # Ih
             0,    # Rh
@@ -83,21 +106,38 @@ class LeptospirosisVaccineModel:
             self.solution_novaccine = sol
         return sol
 
-    def plot_infectious_humans(self):
+    def plot_compartment(self):
         if self.solution_vaccine is None:
             self.solve(with_vaccine=True)
         if self.solution_novaccine is None:
             self.solve(with_vaccine=False)
-        plt.figure(figsize=(10, 6))
-        plt.plot(self.t_eval, self.solution_vaccine.y[2], label='With Vaccine (Ih)', linewidth=2)
-        plt.plot(self.t_eval, self.solution_novaccine.y[2], '--', label='No Vaccine (Ih)', linewidth=2)
-        plt.xlabel("Days")
-        plt.ylabel("Infectious Humans")
-        plt.title("Effect of Vaccination on Leptospirosis Dynamics")
-        plt.legend()
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
+
+        compartments = {
+            "Susceptible (Sh)": 0,
+            "Exposed (Eh)": 1,
+            "Infectious (Ih)": 2,
+            "Recovered (Rh)": 3,
+            "Vaccinated (Vh)": 8
+        }
+
+        with st.expander("Selecciona el compartimento a visualizar", expanded=True):
+            selected = st.selectbox(
+                "Compartimento humano",
+                list(compartments.keys()),
+                index=2
+            )
+
+        idx = compartments[selected]
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(self.t_eval, self.solution_vaccine.y[idx], label='Con Vacuna', linewidth=2)
+        ax.plot(self.t_eval, self.solution_novaccine.y[idx], '--', label='Sin Vacuna', linewidth=2)
+        ax.set_xlabel("Días")
+        ax.set_ylabel(selected)
+        ax.set_title(f"Dinamica de {selected} con y sin vacunación")
+        ax.legend()
+        ax.grid()
+        fig.tight_layout()
+        st.pyplot(fig)
 
 # Example usage:
 if __name__ == "__main__":

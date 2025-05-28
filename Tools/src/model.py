@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.integrate import solve_ivp
+import io
 import matplotlib.pyplot as plt
+import streamlit as st
 
 class LeptospirosisModel:
     def __init__(self, params=None, initial_conditions=None):
@@ -26,7 +28,7 @@ class LeptospirosisModel:
         }
         # Default initial conditions
         self.initial_conditions = initial_conditions or [
-            500,  # Sh
+            1000,  # Sh
             10,   # Eh
             5,    # Ih
             0,    # Rh
@@ -72,16 +74,41 @@ class LeptospirosisModel:
     def plot(self):
         if self.solution is None:
             raise ValueError("No solution found. Run solve() first.")
-        compartments = ['Sh', 'Eh', 'Ih', 'Rh', 'Sv', 'Iv', 'Rv', 'Bl']
-        for i, name in enumerate(compartments):
-            plt.plot(self.solution.t, self.solution.y[i], label=name)
-        plt.xlabel("Time (days)")
-        plt.ylabel("Population")
-        plt.title("Leptospirosis Model Dynamics")
-        plt.legend()
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
+
+        compartments = {
+            "Susceptibles Humanos (Sh)": (0, "Número de Humanos Susceptibles"),
+            "Expuestos Humanos (Eh)": (1, "Número de Humanos Expuestos"),
+            "Infectados Humanos (Ih)": (2, "Número de Humanos Infectados"),
+            "Recuperados Humanos (Rh)": (3, "Número de Humanos Recuperados"),
+            "Susceptibles Animales (Sv)": (4, "Número de Animales Susceptibles"),
+            "Infectados Animales (Iv)": (5, "Número de Animales Infectados"),
+            "Recuperados Animales (Rv)": (6, "Número de Animales Recuperados"),
+            "Bacterias en el ambiente (Bl)": (7, "Cantidad de Bacterias en el Ambiente"),
+        }
+
+        with st.expander("Selecciona un compartimento para graficar"):
+            selected = st.selectbox(
+                "Compartimento",
+                list(compartments.keys()),
+                index=2  # Por defecto Infectados Humanos
+            )
+
+        idx, ylabel = compartments[selected]
+
+        fig, ax = plt.subplots()
+        ax.plot(self.solution.t, self.solution.y[idx], label=selected)
+        ax.set_xlabel("Tiempo (días)")
+        ax.set_ylabel(ylabel)
+        ax.set_title(f"{selected} a lo largo del tiempo")
+        ax.legend()
+        ax.grid()
+        fig.tight_layout()
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0)
+        st.image(buf, caption=f"{selected} a lo largo del tiempo", use_container_width=True)
+        plt.close(fig)
 
 # Example usage:
 # model = LeptospirosisModel()

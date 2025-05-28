@@ -17,16 +17,44 @@ params = vaccine_model_obj.params.copy()
 initial_conditions = vaccine_model_obj.initial_conditions.copy()
 
 sections = ["Model Parameters", "Run Simulation", "Cost-Benefit Analysis", "Sensitivity Analysis"]
-section = st.sidebar.radio("Go to", sections)
+with st.sidebar:
+    st.markdown(
+        """
+        <style>
+        .sidebar-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4F8BF9;
+            margin-bottom: 20px;
+        }
+        .sidebar-radio label {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown('<div class="sidebar-title">Navigation</div>', unsafe_allow_html=True)
+    section = st.radio(
+        "Select Section",
+        sections,
+        key="sidebar_radio",
+        format_func=lambda x: f"🔹 {x}" if x != "Run Simulation" else f"🚀 {x}",
+        help="Choose a section to explore"
+    )
 
 # Model Parameters Section
 if section == "Model Parameters":
     st.header("Model Parameters")
     st.markdown("Set the parameters below. Default values are pre-filled.")
 
+    # Mostrar nombre y descripción usando param_comments
     for key in params:
+        comment = vaccine_model_obj.param_comments.get(key, "")
+        label = f"{key} ({comment})" if comment else key
         if isinstance(params[key], float):
-            params[key] = st.number_input(f"{key}", value=params[key])
+            params[key] = st.number_input(label, value=params[key])
 
     # Actualizar parámetros en los modelos
     vaccine_model_obj.params = params.copy()
@@ -37,12 +65,10 @@ elif section == "Run Simulation":
     st.header("Simulation Results")
 
     vaccine_model_obj.params = params.copy()
-    no_vaccine_model_obj.params = {k: v for k, v in params.items() if k in no_vaccine_model_obj.params}
     vaccine_model_obj.initial_conditions = initial_conditions.copy()
-    no_vaccine_model_obj.initial_conditions = initial_conditions[:8]  # El modelo sin vacuna tiene 8 variables
 
-    sol_vax = vaccine_model_obj.solve(with_vaccine=True)
-    sol_no_vax = vaccine_model_obj.solve(with_vaccine=False)
+    sol_vax = vaccine_model_obj.solve()
+    sol_no_vax = no_vaccine_model_obj.solve()
 
     t_eval = vaccine_model_obj.t_eval
 
@@ -55,6 +81,14 @@ elif section == "Run Simulation":
     ax.legend()
     ax.grid()
     st.pyplot(fig)
+
+    # Mostrar resultados de los métodos plot() y plot_infectious_humans() en la interfaz
+    st.subheader("Resultados detallados del modelo sin vacuna")
+    no_vaccine_model_obj.plot()
+
+    st.subheader("Resultados detallados del modelo con vacuna")
+    vaccine_model_obj.plot_compartment()
+
 
 # Cost-Benefit Analysis Section
 elif section == "Cost-Benefit Analysis":
