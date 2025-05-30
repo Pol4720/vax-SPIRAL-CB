@@ -52,7 +52,7 @@ class LeptospirosisVaccineModel:
         }
         # Default initial conditions
         self.initial_conditions = initial_conditions or [
-            1000,  # Sh
+            500,  # Sh
             10,   # Eh
             5,    # Ih
             0,    # Rh
