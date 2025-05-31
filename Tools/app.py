@@ -96,6 +96,7 @@ elif section == "Cost-Benefit Analysis":
 
     dose_cost = st.number_input("Cost per Vaccine Dose ($)", 0.0, 500.0, 20.0)
     doses_per_person = st.number_input("Doses per Person", 1, 3, 1)
+
     prop_mild = st.slider("Proportion Mild", 0.0, 1.0, 0.7)
     prop_mod = st.slider("Proportion Moderate", 0.0, 1.0, 0.2)
     prop_sev = st.slider("Proportion Severe", 0.0, 1.0, 0.1)
@@ -109,8 +110,9 @@ elif section == "Cost-Benefit Analysis":
     sol_no_vax = vaccine_model_obj.solve(with_vaccine=False)
     t_eval = vaccine_model_obj.t_eval
 
-    total_infected_no_vax = np.trapz(sol_no_vax.y[2], t_eval)
-    total_infected_vax = np.trapz(sol_vax.y[2], t_eval)
+    # Calcular el número total de personas que han pasado por el compartimento de infectados (incidencia acumulada)
+    total_infected_no_vax = sol_no_vax.y[2, -1]  
+    total_infected_vax = sol_vax.y[2, -1] 
     avoided_cases = total_infected_no_vax - total_infected_vax
 
     cases_mild = avoided_cases * prop_mild

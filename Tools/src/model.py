@@ -8,34 +8,34 @@ class LeptospirosisModel:
     def __init__(self, params=None, initial_conditions=None):
         # Default parameters
         self.params = params or {
-            'Λ': 50,
-            'Π': 30,
-            'β1': 0.02,
-            'β2': 0.01,
-            'β3': 0.03,
-            'γ': 0.01,
-            'μ': 0.01,
-            'μv': 0.01,
+            'Λ': 4.635,
+            'Π': 2,
+            'β1': 0.00033,
+            'β2': 0.0815,
+            'β3': 0.0007,
+            'γ': 0.089,
+            'μ': 0.0009,
+            'μv': 0.0029,
             'μb': 0.05,
-            'θ': 0.2,
-            'α': 0.01,
-            'δ': 0.1,
-            'ρ': 0.05,
-            'σ': 0.1,
-            'κ': 10,
-            'τ1': 0.5,
-            'τ2': 0.3,
+            'θ': 0.092,
+            'α': 0.04,
+            'δ': 0.072,
+            'ρ': 0.083,
+            'σ': 0.064,
+            'κ': 10000,
+            'τ1': 0.06,
+            'τ2': 0.2
         }
         # Default initial conditions
         self.initial_conditions = initial_conditions or [
-            500,  # Sh
-            10,   # Eh
-            5,    # Ih
+            270,  # Sh
+            20,   # Eh
+            10,    # Ih
             0,    # Rh
-            400,  # Sv
+            510,  # Sv
             10,   # Iv
             0,    # Rv
-            0     # Bl
+            100   # Bl
         ]
         self.solution = None
 
