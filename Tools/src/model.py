@@ -8,7 +8,7 @@ class LeptospirosisModel:
     def __init__(self, params=None, initial_conditions=None):
         # Default parameters
         self.params = params or {
-            'Λ': 4.635,
+            'Λ': 5,
             'Π': 2,
             'β1': 0.00033,
             'β2': 0.0815,
@@ -38,23 +38,38 @@ class LeptospirosisModel:
             100   # Bl
         ]
         self.solution = None
+        self.A = 0.4  # Amplitud estacional
+        self.t_pico = 2  # Mes de máximo (febrero)
+
+    def beta_estacional(self, beta_media, t_dia):
+        """
+        Calcula el valor estacional de beta dado el día t_dia.
+        """
+        mes = int((t_dia // 30) % 12) + 1  # Mes del año (1-12)
+        return beta_media * (1 + self.A * np.cos(2 * np.pi * (mes - self.t_pico) / 12))
 
     def model(self, t, y):
         Sh, Eh, Ih, Rh, Sv, Iv, Rv, Bl = y
         p = self.params
-        Λ, Π, β1, β2, β3, γ, μ, μv, μb, θ, α, δ, ρ, σ, κ, τ1, τ2 = (
+
+        # Calcular betas estacionales
+        beta1 = self.beta_estacional(p['β1'], t)
+        beta2 = self.beta_estacional(p['β2'], t)
+        beta3 = self.beta_estacional(p['β3'], t)
+
+        Λ, Π, _, _, _, γ, μ, μv, μb, θ, α, δ, ρ, σ, κ, τ1, τ2 = (
             p['Λ'], p['Π'], p['β1'], p['β2'], p['β3'], p['γ'], p['μ'], p['μv'], p['μb'],
             p['θ'], p['α'], p['δ'], p['ρ'], p['σ'], p['κ'], p['τ1'], p['τ2']
         )
 
-        λh = β2 * Bl / (κ + Bl) + β1 * Iv
+        λh = beta2 * Bl / (κ + Bl) + beta1 * Iv
 
         dSh = Λ + γ * Rh - (λh + μ) * Sh
         dEh = λh * Sh - (θ + μ) * Eh
         dIh = θ * Eh - (α + δ + μ) * Ih
         dRh = δ * Ih - (γ + μ) * Rh
-        dSv = Π + ρ * Rv - (β3 * Ih + μv) * Sv
-        dIv = β3 * Ih * Sv - (σ + μv) * Iv
+        dSv = Π + ρ * Rv - (beta3 * Ih + μv) * Sv
+        dIv = beta3 * Ih * Sv - (σ + μv) * Iv
         dRv = σ * Iv - (ρ + μv) * Rv
         dBl = τ1 * Ih + τ2 * Iv - μb * Bl
 
@@ -80,9 +95,7 @@ class LeptospirosisModel:
             "Expuestos Humanos (Eh)": (1, "Número de Humanos Expuestos"),
             "Infectados Humanos (Ih)": (2, "Número de Humanos Infectados"),
             "Recuperados Humanos (Rh)": (3, "Número de Humanos Recuperados"),
-            "Susceptibles Animales (Sv)": (4, "Número de Animales Susceptibles"),
-            "Infectados Animales (Iv)": (5, "Número de Animales Infectados"),
-            "Recuperados Animales (Rv)": (6, "Número de Animales Recuperados"),
+            "Vectores (Sv, Iv, Rv)": ("vectores", "Población de Vectores"),
             "Bacterias en el ambiente (Bl)": (7, "Cantidad de Bacterias en el Ambiente"),
         }
 
@@ -96,11 +109,20 @@ class LeptospirosisModel:
         idx, ylabel = compartments[selected]
 
         fig, ax = plt.subplots()
-        ax.plot(self.solution.t, self.solution.y[idx], label=selected)
+        if idx == "vectores":
+            t = self.solution.t
+            ax.plot(t, self.solution.y[4], label="Sv (Susceptibles)", color="tab:blue")
+            ax.plot(t, self.solution.y[5], label="Iv (Infectados)", color="tab:red")
+            ax.plot(t, self.solution.y[6], label="Rv (Recuperados)", color="tab:green")
+            ax.set_ylabel("Población de Vectores")
+            ax.set_title("Dinámica de los compartimentos de vectores")
+            ax.legend()
+        else:
+            ax.plot(self.solution.t, self.solution.y[idx], label=selected)
+            ax.set_ylabel(ylabel)
+            ax.set_title(f"{selected} a lo largo del tiempo")
+            ax.legend()
         ax.set_xlabel("Tiempo (días)")
-        ax.set_ylabel(ylabel)
-        ax.set_title(f"{selected} a lo largo del tiempo")
-        ax.legend()
         ax.grid()
         fig.tight_layout()
 
@@ -110,7 +132,3 @@ class LeptospirosisModel:
         st.image(buf, caption=f"{selected} a lo largo del tiempo", use_container_width=True)
         plt.close(fig)
 
-# Example usage:
-# model = LeptospirosisModel()
-# model.solve()
-# model.plot()
