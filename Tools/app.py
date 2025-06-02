@@ -192,10 +192,11 @@ elif section == "Sensitivity Analysis":
         'bounds': [[0.0, 0.5]]
     }
 
-    # Generar muestras usando Saltelli
-    param_values = saltelli.sample(problem, 128, calc_second_order=False)
+    # Generar muestras usando Saltelli (N debe ser múltiplo de 2D, D=número de parámetros)
+    N = 512  # Debe ser múltiplo de 2*D (aquí D=1, así que múltiplo de 2)
+    param_values = saltelli.sample(problem, N, calc_second_order=False)
 
-    Y = []
+    Y = np.zeros(param_values.shape[0])
     for i, vals in enumerate(param_values):
         phi = vals[0]
         p = params.copy()
@@ -205,10 +206,10 @@ elif section == "Sensitivity Analysis":
         sol = vaccine_model_obj.solve(with_vaccine=True)
         # Usar el área bajo la curva de infectados como salida
         auc_inf = simpson(sol.y[2], vaccine_model_obj.t_eval)
-        Y.append(auc_inf)
+        Y[i] = auc_inf
 
     # Analizar sensibilidad con Sobol
-    Si = sobol.analyze(problem, np.array(Y), calc_second_order=False)
+    Si = sobol.analyze(problem, Y, calc_second_order=False)
 
     st.subheader("Sobol Sensitivity Indices for ϕ")
     st.write("First-order index (S1):", Si['S1'][0])
