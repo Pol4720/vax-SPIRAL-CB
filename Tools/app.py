@@ -6,6 +6,8 @@ import pandas as pd
 from src.model_vaccine import LeptospirosisVaccineModel
 from src.model import LeptospirosisModel
 from scipy.integrate import simpson
+from SALib.sample import saltelli
+from SALib.analyze import sobol
 
 st.set_page_config(layout="wide")
 st.title("Leptospirosis Vaccination Simulator")
@@ -180,23 +182,41 @@ elif section == "Cost-Benefit Analysis":
 
 # Sensitivity Analysis Section
 elif section == "Sensitivity Analysis":
-    st.header("Sensitivity Analysis: Vaccine Coverage")
-    coverages = np.linspace(0, 0.5, 20)
-    results = []
+    st.header("Sensitivity Analysis: Max Vaccination Rate (ϕ) using Sobol Indices")
 
-    for phi in coverages:
+
+    # Definir el problema para SALib
+    problem = {
+        'num_vars': 1,
+        'names': ['ϕ'],
+        'bounds': [[0.0, 0.5]]
+    }
+
+    # Generar muestras usando Saltelli
+    param_values = saltelli.sample(problem, 128, calc_second_order=False)
+
+    Y = []
+    for i, vals in enumerate(param_values):
+        phi = vals[0]
         p = params.copy()
         p['ϕ'] = phi
         vaccine_model_obj.params = p
         vaccine_model_obj.initial_conditions = initial_conditions.copy()
         sol = vaccine_model_obj.solve(with_vaccine=True)
-        inf = np.trapz(sol.y[2], vaccine_model_obj.t_eval)
-        results.append(inf)
+        # Usar el área bajo la curva de infectados como salida
+        auc_inf = simpson(sol.y[2], vaccine_model_obj.t_eval)
+        Y.append(auc_inf)
 
-    fig2, ax2 = plt.subplots()
-    ax2.plot(coverages, results, marker='o')
-    ax2.set_xlabel("Vaccine Coverage Rate (ϕ)")
-    ax2.set_ylabel("Total Infections (AUC)")
-    ax2.set_title("Sensitivity to Vaccine Coverage")
-    ax2.grid()
-    st.pyplot(fig2)
+    # Analizar sensibilidad con Sobol
+    Si = sobol.analyze(problem, np.array(Y), calc_second_order=False)
+
+    st.subheader("Sobol Sensitivity Indices for ϕ")
+    st.write("First-order index (S1):", Si['S1'][0])
+    st.write("Total-order index (ST):", Si['ST'][0])
+
+    # Visualización
+    fig, ax = plt.subplots()
+    ax.bar(['S1', 'ST'], [Si['S1'][0], Si['ST'][0]], color=['#4F8BF9', '#F9A74F'])
+    ax.set_ylabel("Sobol Index")
+    ax.set_title("Sobol Sensitivity Indices for Max Vaccination Rate (ϕ)")
+    st.pyplot(fig)
