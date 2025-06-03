@@ -125,7 +125,7 @@ class LeptospirosisVaccineModel:
             phi_t = 0
 
         # Human compartments
-        dSh = Λ + γ * Rh + ω * Vh - λh * Sh - μ * Sh - phi_t * Sh
+        dSh = Λ + γ * Rh + ω * Vh - λh * Sh - μ * Sh - phi_t * ε * Sh
         dEh = λh * Sh - (θ + μ) * Eh
         dIh = θ * Eh - (α + δ + μ) * Ih
         dRh = δ * Ih - (γ + μ) * Rh

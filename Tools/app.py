@@ -191,18 +191,18 @@ elif section == "Sensitivity Analysis":
         'names': ['ϕ', 'β1', 'β2', 'β3', 'ε'],
         'bounds': [
             [0.0, 0.5],      # ϕ: tasa máxima de vacunación
-            [0.0, 1.0],      # β1: tasa de transmisión 1
-            [0.0, 1.0],      # β2: tasa de transmisión 2
-            [0.0, 1.0],      # β3: tasa de transmisión 3
+            [0.0, 0.25],      # β1: tasa de transmisión 1
+            [0.0, 0.25],      # β2: tasa de transmisión 2
+            [0.0, 0.25],      # β3: tasa de transmisión 3
             [0.0, 1.0],      # ε: eficacia de la vacuna
         ]
     }
 
     # Permitir al usuario elegir el número de muestras (N) para acelerar el análisis
-    N = st.slider("Number of samples (higher = slower, more accurate)", 4, 32, 8, help="Reduce for faster analysis")
-    param_values = sobol_sampler.sample(problem, N)
+    N = st.slider("Number of samples (higher = slower, more accurate)", 4, 32, 4, help="Reduce for faster analysis")
+    param_values = sobol_sampler.sample(problem, N, calc_second_order=False)
     st.write("Sampled parameter values (first 10 rows):")
-    st.dataframe(pd.DataFrame(param_values, columns=problem['names']).head(10))
+    st.dataframe(pd.DataFrame(param_values, columns=problem['names']))
     Y = np.zeros(param_values.shape[0])
     progress = st.progress(0, text="Running simulations...")
     for i, vals in enumerate(param_values):

@@ -1,11 +1,11 @@
-\documentclass\[12pt,a4paper]{article}
-\usepackage\[utf8]{inputenc}
-\usepackage\[spanish]{babel}
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
 \usepackage{amsmath, amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{geometry}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
 \usepackage{float}
@@ -21,6 +21,7 @@
 \rhead{Modelo SEIR con vacunación}
 \lhead{Informe Científico}
 \rfoot{\thepage}
+\setlength{\headheight}{14.5pt} % Fix for fancyhdr warning
 
 \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
@@ -40,8 +41,7 @@
         \textbf{Correo:} & \correo \\
         \textbf{Institución:} & \institucion \\
          \textbf{Tutor:} & \tutor \\
-         \textbf{Correo del tutor:} & \texttt{jose.carlos@institutofinlay.cu} \\
-       
+         \textbf{Correo del tutor:} & \texttt{jose.carlos@institutofinlay.cu}   
     \end{tabular}
     \\[1em]
     \today
@@ -65,6 +65,8 @@ Este estudio propone un modelo matemático compartimental para analizar la trans
 
 El informe está organizado como sigue: se formula el modelo matemático base (SEIR), se presenta su extensión con vacunación, se reportan los resultados de simulación y se discuten los análisis de sensibilidad y costo-beneficio.
 
+\newpage
+
 % ================================
 \section{Formulación del Modelo SEIR Básico}
 
@@ -72,13 +74,14 @@ El informe está organizado como sigue: se formula el modelo matemático base (S
 \begin{itemize}
 \item La población humana total, denotada como $N_{0,h}$, se divide en susceptibles ($S_h$), expuestos ($E_h$), infectados ($I_h$) y recuperados ($R_h$).
 \item La transmisión ocurre por contacto con roedores infectados o ambientes contaminados.
-\item La población de roedores incluye susceptibles (\$S\_v\$), infectados (\$I\_v\$) y recuperados (\$R\_v\$).
-\item Existe una población ambiental de bacterias patógenas \$B\_l\$.
+\item La población de roedores incluye susceptibles ($S_v$), infectados ($I_v$) y recuperados ($R_v$).
+\item Existe una población ambiental de bacterias patógenas $B_l$.
 \end{itemize}
 
 \subsection{Compartimentos y diagrama}
 \begin{center}
-\includegraphics\[width=0.9\textwidth]{modelo\_seir.png}
+\includegraphics[width=0.9\textwidth]{Images/modelo_seir.png}
+\captionsetup{hypcap=false}
 \captionof{figure}{Diagrama de flujos del modelo SEIR con roedores y ambiente.}
 \end{center}
 
@@ -124,52 +127,65 @@ El sistema completo de ecuaciones diferenciales es:
 \centering
 \begin{tabular}{@{}lllll@{}}
 \toprule
-\textbf{Parámetro} & \textbf{Descripción} & \textbf{Valor promedio} & \textbf{Unidades} & \textbf{Fuente} \\
+\textbf{Parámetro} & \textbf{Descripción} & \textbf{Valor} & \textbf{Unidades} & \textbf{Fuente} \\
 \midrule
-$\Lambda$ & Tasa de reclutamiento humana & $\mu \times N_{0,h}$ & humano/día & \cite{paisanwarakiat2021} \\
-$\Pi$ & Tasa de reclutamiento de roedores & 2 & roedor/día & \cite{paisanwarakiat2021} \\
-$\beta_{1,m}$ & Transmisión roedor-humano (promedio) & 0.00033 & 1/(roedor·día) & \cite{engida2022} \\
-$\beta_{2,m}$ & Transmisión ambiente-humano (promedio) & 0.0815 & 1/día & \cite{engida2022} \\
-$\beta_{3,m}$ & Transmisión humano-roedor (promedio) & 0.0007 & 1/(humano·día) & \cite{engida2022} \\
-$\gamma$ & Pérdida de inmunidad humana & 0.089 & 1/día & \cite{khan2014} \\
-$\mu$ & Mortalidad natural humana & 0.0009 & 1/día & \cite{alemneh2020,paisanwarakiat2021} \\
-$\mu_v$ & Mortalidad natural roedores & 0.0029 & 1/día & \cite{alemneh2020} \\
-$\mu_b$ & Mortalidad bacterias & 0.05 & 1/día & \cite{minter2019} \\
-$\theta$ & Progresión expuesto a infectado & 0.092 & 1/día & \cite{khan2012} \\
-$\alpha$ & Mortalidad por enfermedad & 0.04 & 1/día & \cite{engida2022} \\
-$\delta$ & Recuperación humana & 0.072 & 1/día & \cite{engida2022} \\
-$\rho$ & Pérdida de inmunidad roedores & 0.083 & 1/día & \cite{engida2022} \\
-$\sigma$ & Recuperación roedores & 0.064 & 1/día & \cite{engida2022} \\
-$\kappa$ & Constante de saturación ambiental & 10000 & - & \cite{engida2022} \\
-$\tau_1$ & Liberación de patógeno por humanos & 0.06 & bacterias/(humano·día) & \cite{minter2019} \\
-$\tau_2$ & Liberación de patógeno por roedores & 0.2 & bacterias/(roedor·día) & \cite{minter2019} \\
+$\Lambda$ & Tasa de reclutamiento  
+           & $\mu \times N_{0,h}$ & humano/día & \cite{paisanwarakiat2021} \\
+          & humana &  &  &  \\
+$\Pi$ & Tasa de reclutamiento  
+      & 2 & roedor/día & \cite{paisanwarakiat2021} \\
+      & de roedores  &  &  &  \\
+$\beta_{1,m}$ & Transmisión roedor- 
+              & 0.00033 & 1/(roedor·día) & \cite{engida2022} \\
+              & humano (promedio) &  &  &  \\
+$\beta_{2,m}$ & Transmisión ambiente-
+              & 0.0815 & 1/día & \cite{engida2022} \\
+              & humano (promedio)  &  &  &  \\
+$\beta_{3,m}$ & Transmisión humano-
+              & 0.0007 & 1/(humano·día) & \cite{engida2022} \\
+              & roedor (promedio)  &  &  &  \\
+$\gamma$ & Pérdida de  
+         & 0.089 & 1/día & \cite{khan2014} \\
+         & inmunidad humana &  &  &  \\
+$\mu$ & Mortalidad natural 
+      & 0.0009 & 1/día & \cite{alemneh2020,paisanwarakiat2021} \\
+      & humana  &  &  &  \\
+$\mu_v$ & Mortalidad natural 
+        & 0.0029 & 1/día & \cite{alemneh2020} \\
+        & roedores  &  &  &  \\
+$\mu_b$ & Mortalidad bacterias 
+        & 0.05 & 1/día & \cite{minter2019} \\
+        &  &  &  &  \\
+$\theta$ & Progresión expuesto
+         & 0.092 & 1/día & \cite{khan2012} \\
+         &  a infectado  &  &  &  \\
+$\alpha$ & Mortalidad por 
+         & 0.04 & 1/día & \cite{engida2022} \\
+         & enfermedad  &  &  &  \\
+$\delta$ & Recuperación humana 
+         & 0.072 & 1/día & \cite{engida2022} \\
+         &  &  &  &  \\
+$\rho$ & Pérdida de inmunidad
+       & 0.083 & 1/día & \cite{engida2022} \\
+       &  roedores  &  &  &  \\
+$\sigma$ & Recuperación roedores 
+         & 0.064 & 1/día & \cite{engida2022} \\
+         &  &  &  &  \\
+$\kappa$ & Constante de saturación
+         & 10000 & - & \cite{engida2022} \\
+         &  ambiental  &  &  &  \\
+$\tau_1$ & Liberación de patógeno 
+         & 0.06 & bacterias/(humano·día) & \cite{minter2019} \\
+         &  por humanos &  &  &  \\
+$\tau_2$ & Liberación de patógeno 
+         & 0.2 & bacterias/(roedor·día) & \cite{minter2019} \\
+         & por roedores  &  &  &  \\
 \bottomrule
 \end{tabular}
 \caption{Parámetros del modelo SEIR extendido con roedores y ambiente. Los valores de $\beta_1$, $\beta_2$ y $\beta_3$ corresponden a los promedios anuales y se usan como base para las funciones estacionales.}
 \end{table}
 
-[1] Engida, H. A., Theuri, D. M., Gathungu, D., Gachohi, J., & Alemneh, H. T. (2022). A Mathematical Model Analysis for the Transmission Dynamics of Leptospirosis Disease in Human and Rodent Populations. Computational and Mathematical Methods in Medicine, 2022, Article ID 1806585.
 
-[5] R. Paisanwarakiat and R. Thamchai, Optimal Control of a Lep-
-tospirosis Epidemic Model, Science & Technology Asia, 2021.
-
-[6] A. Minter, F. Costa, H. Khalil et al., “Optimal control of rat-
-borne leptospirosis in an urban environment,” Frontiers in
-Ecology and Evolution, vol. 7, p. 209, 2019.
-
-[29] H. T. Alemneh, “A co-infection model of dengue and leptospi-
-rosis diseases,” Advances in Difference Equations, vol. 2020, 23
-pages, 2020.
-
-[30] M. A. Khan, G. Zaman, S. Islam, and M. I. Chohan, “Optimal
-campaign in leptospirosis epidemic by multiple control vari-
-ables,” Applied Mathematics, vol. 3, no. 11, pp. 1655–1663,
-2012.
-
-[31] M. A. Khan, S. Islam, S. A. Khan, I. Khan, S. Shaﬁe, and T. Gul,
-“Prevention of leptospirosis infected vector and human popu-
-lation by multiple control variables,” Abstract and Applied
-Analysis, vol. 2014, Article ID 619035, 9 pages, 2014.
 
 \subsection{Parámetros estacionales o dependientes del tiempo}
 Las tasas de transmisión $\beta_1$, $\beta_2$ y $\beta_3$ varían estacionalmente según:
@@ -193,6 +209,8 @@ Por ejemplo, para la transmisión ambiente-humano:
 
 Este mismo esquema se aplica a $\beta_1$ y $\beta_3$.
 
+\newpage
+
 % ================================
 \section{Extensión del Modelo con Vacunación}
 
@@ -203,7 +221,7 @@ Para modelar la intervención vacunal, se añade el compartimento $V_h$ (humanos
 Las ecuaciones modificadas y añadidas son:
 
 \begin{align*}
-\frac{dS_h}{dt} &= \Lambda + \gamma R_h + \omega V_h - \lambda_h S_h - \mu S_h - \nu(t) S_h \\
+\frac{dS_h}{dt} &= \Lambda + \gamma R_h + \omega V_h - \lambda_h S_h - \mu S_h - \nu(t) \varepsilon S_h \\
 \frac{dV_h}{dt} &= \nu(t) \varepsilon S_h - (\omega + \mu) V_h
 \end{align*}
 
@@ -253,9 +271,9 @@ donde:
 \toprule
 \textbf{Parámetro} & \textbf{Descripción} & \textbf{Valor} & \textbf{Unidades} & \textbf{Fuente} \\
 \midrule
-$\phi$ ($\nu_{\max}$) & Tasa máxima de vacunación diaria & 0.01 & 1/día & Código/modelo \\
-$\varepsilon$ & Eficacia de la vacuna & 0.78 & - & Vax-SPIRAL, ver abajo \\
-$\omega$ & Pérdida de inmunidad vacunal & $1/180$ & 1/día & Vax-SPIRAL, ver abajo \\
+$\phi$ ($\nu_{\max}$) & Tasa máxima de vacunación diaria & 0.01 & 1/día & Supuesto \\
+$\varepsilon$ & Eficacia de la vacuna & 0.78 & - & Supuesto \\
+$\omega$ & Pérdida de inmunidad vacunal & $1/180$ & 1/día & Supuesto \\
 \bottomrule
 \end{tabular}
 \caption{Parámetros adicionales y dependientes del tiempo para la vacunación.}
@@ -264,7 +282,7 @@ $\omega$ & Pérdida de inmunidad vacunal & $1/180$ & 1/día & Vax-SPIRAL, ver ab
 Las tasas de transmisión $\beta_1$, $\beta_2$ y $\beta_3$ siguen variando estacionalmente como en el modelo base:
 
 
-\subsection{Argumentación y sentido de las modificaciones}
+\subsection{Argumentación de las modificaciones}
 
 Las modificaciones introducidas buscan reflejar la realidad de las campañas de vacunación, que suelen intensificarse ante brotes o en periodos de mayor riesgo estacional. El uso de una tasa dinámica $\nu(t)$ permite modelar respuestas adaptativas del sistema de salud, optimizando recursos y maximizando el impacto preventivo de la vacunación. Además, la inclusión de la pérdida de inmunidad vacunal ($\omega$) y la eficacia real de la vacuna ($\varepsilon$) permite evaluar escenarios más realistas y comparables con datos empíricos.
 
@@ -278,7 +296,7 @@ La vacuna considerada en este modelo es \textbf{Vax-SPIRAL}, desarrollada para l
     \item \textbf{Tasa máxima de vacunación} ($\nu_{\max} = 0.01$): Se considera que, logísticamente, es posible vacunar hasta el 1\% de la población susceptible por día en campañas intensivas, valor ajustable según la capacidad del sistema de salud.
 \end{itemize}
 
-
+\newpage
 
 % ================================
 \section{Resultados del Modelo}
@@ -297,7 +315,7 @@ Para ilustrar el comportamiento del modelo, se simulan dos escenarios principale
 \begin{itemize}
 
     \item \textbf{Amplitud estacional $A=0.4$}: En el sur de Brasil, la leptospirosis muestra marcada estacionalidad, con picos en la temporada de lluvias y calor. Un valor de $A=0.4$ representa una variación moderada a alta en la transmisión a lo largo del año, acorde a reportes epidemiológicos regionales.
-    \item \textbf{Mes pico $t_{\text{pico}}=2$ (febrero)}: Los brotes suelen alcanzar su máximo en febrero, coincidiendo con el final del verano austral y el periodo de mayor precipitación.
+    \item \textbf{Mes pico $t_{\textit{pico}}=2$ (febrero)}: Los brotes suelen alcanzar su máximo en febrero, coincidiendo con el final del verano austral y el periodo de mayor precipitación.
     \item \textbf{Poblaciones iniciales:}
     \begin{itemize}
         \item Humanos susceptibles $S_h(0) = 270$
@@ -315,10 +333,10 @@ Para ilustrar el comportamiento del modelo, se simulan dos escenarios principale
 
 \subsection{Simulación: comparación conjunta}
 
-\subsubsection{Análisis de la Dinámica de Infectados ($I_h$)}
+\subsubsection{Análisis de la Dinámica de Infectados (\texorpdfstring{$I_h$}{Ih})}
 
 
-\includegraphics[width=0.85\textwidth]{infectados_comparacion.png}
+\includegraphics[width=0.85\textwidth]{Images/infectados.png}
 \captionof{figure}{Evolución de infectados: comparación entre escenarios sin vacunación y con vacunación dinámica.}
 
 La Figura  muestra la evolución de la población de individuos infectados humanos ($I_h$) durante un año bajo dos escenarios: con vacunación adaptativa (línea azul continua) y sin vacunación (línea naranja discontinua). En ambos casos, la tasa de transmisión presenta estacionalidad, con picos en los meses lluviosos (principalmente febrero), lo que es consistente con estudios epidemiológicos recientes en regiones endémicas \cite{pijnacker2019}.
@@ -329,28 +347,16 @@ La Figura  muestra la evolución de la población de individuos infectados human
 
 \paragraph{Fase tardía (días 200–360).} A partir del día 250 ocurre un segundo repunte epidémico más marcado en el escenario sin vacunación, alcanzando máximos de hasta 135 infectados. Este comportamiento podría estar asociado a la pérdida de inmunidad en individuos recuperados y a la estacionalidad secundaria, tal como se ha reportado en regiones tropicales donde se observan múltiples oleadas anuales de leptospirosis.
 
-\paragraph{Comparación y eficacia.} En todo el intervalo, el número de infectados es consistentemente menor en el escenario con vacunación, con una diferencia acumulada significativa en el área bajo la curva. Esto demuestra que la intervención vacunal dinámica no sólo atenúa los picos de infección, sino que reduce de forma sostenida la carga de enfermedad.
+\paragraph{Comparación y eficacia.} En todo el intervalo, el número de infectados es consistentemente menor en el escenario con vacunación, con una diferencia acumulada significativa en el área bajo la curva. Esto demuestra que la intervención vacunal dinámica no solo atenúa los picos de infección, sino que reduce de forma sostenida la carga de enfermedad.
 
 \paragraph{Conclusión.} La vacunación adaptativa modulada por indicadores epidemiológicos permite mitigar eficazmente la incidencia de leptospirosis, especialmente en entornos con fuerte estacionalidad. Esto coincide con evidencia científica sobre la utilidad de intervenciones preventivas focalizadas durante los periodos de mayor riesgo \cite{pijnacker2019}.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
-
-% Nota: agregar la siguiente entrada al archivo .bib
-% @article{pijnacker2019,
-%  title={Evaluating Leptospirosis Burden and Risk in the Netherlands Through Spatial Modelling and Surveillance Data},
-%  author={Pijnacker, R and et al.},
-%  journal={PLoS Neglected Tropical Diseases},
-%  year={2019},
-%  volume={13},
-%  number={9},
-%  pages={e0007780}
-% }
 
 
-\subsubsection{Análisis de la Dinámica de los Susceptibles ($S_h$)}
 
-\includegraphics[width=0.85\textwidth]{susceptibles_comparacion.png}
+\subsubsection{Análisis de la Dinámica de los Susceptibles (\texorpdfstring{$S_h$}{Sh})}
+
+\includegraphics[width=0.85\textwidth]{Images/susceptibles.png}
 \captionof{figure}{Evolución de susceptibles: comparación entre escenarios sin y con vacunación.}
 
 Se muestra la evolución de la población susceptible humana a lo largo de un año bajo dos escenarios: con vacunación (línea azul continua) y sin vacunación (línea naranja discontinua). 
@@ -368,9 +374,9 @@ Se muestra la evolución de la población susceptible humana a lo largo de un a�
 
 \paragraph{Recomendaciones.} Se recomienda implementar campañas vacunales intensivas previas al mes de febrero, monitorear la pérdida de inmunidad e integrar medidas ambientales para reforzar el efecto protector observado.
 
-\subsubsection{Análisis de la Dinámica de Expuestos ($E_h$)}
+\subsubsection{Análisis de la Dinámica de Expuestos (\texorpdfstring{$E_h$}{Eh})}
 
-\includegraphics[width=0.85\textwidth]{expuestos.png}
+\includegraphics[width=0.85\textwidth]{Images/expuestos.png}
 \captionof{figure}{Evolución de expuestos: comparación entre escenarios sin y con vacunación.}
 
 
@@ -387,21 +393,11 @@ La Figura muestra la evolución del número de individuos expuestos ($E_h$), es 
 
 \paragraph{Conclusión.} La vacunación no sólo reduce los casos clínicos (infectados), sino también modera la cantidad de individuos en periodo de incubación, reduciendo el potencial epidémico oculto. Esto sugiere que la vacunación tiene un efecto positivo temprano y sostenido sobre la dinámica general de la transmisión, anticipándose al desarrollo de brotes más severos.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
-
-% Nota: agregar la siguiente entrada al archivo .bib
-% @misc{cdc2024,
-%   author = {{Centers for Disease Control and Prevention}},
-%   title = {Leptospirosis - CDC Fact Sheet},
-%   year = {2024},
-%   url = {https://www.cdc.gov/leptospirosis/index.html}
-% }
 
 
-\subsubsection{Análisis de la Dinámica de Recuperados ($R_h$)}
+\subsubsection{Análisis de la Dinámica de Recuperados (\texorpdfstring{$R_h$}{Rh})}
 
-\includegraphics[width=0.85\textwidth]{recuperados.png}
+\includegraphics[width=0.85\textwidth]{Images/recuperados.png}
 \captionof{figure}{Evolución de recuperados: comparación entre escenarios sin y con vacunación.}
 
 
@@ -417,27 +413,15 @@ La Figura muestra la evolución de la población humana recuperada ($R_h$) a lo 
 
 \paragraph{Apoyo bibliográfico.} Estudios como el de Adler y Moctezuma (2010) han documentado que la inmunidad post-leptospirosis no siempre es duradera ni totalmente protectora, lo que justifica la inclusión del parámetro $\gamma$ en el modelo \cite{adler2010}. La combinación de inmunidad natural transitoria y vacunación adaptativa permite mantener una dinámica epidémica más estable y controlada.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
 
-% Agregar esta entrada al archivo referencias.bib:
-% @article{adler2010,
-%   title={Leptospira and leptospirosis},
-%   author={Adler, Ben and de la Peña Moctezuma, Alfredo},
-%   journal={Veterinary microbiology},
-%   volume={140},
-%   number={3-4},
-%   pages={287--296},
-%   year={2010},
-%   publisher={Elsevier}
-% }
-\subsubsection{Análisis de la Dinámica de Vacunados ($V_h$)}
 
-\includegraphics[width=0.85\textwidth]{vacunados.png}
+\subsubsection{Análisis de la Dinámica de Vacunados (\texorpdfstring{$V_h$}{Vh})}
+
+\includegraphics[width=0.85\textwidth]{Images/vacunados.png}
 \captionof{figure}{Evolución de vacunados (solo escenario con vacunación).}
 
 
-La Figura representa la evolución temporal del compartimento de vacunados inmunizados ($V_h$) en humanos. En este compartimento se acumulan los individuos que han recibido la vacuna, esta ha sido eficaz (con probabilidad $\varepsilon$) y no han perdido aún la inmunidad inducida. Se comparan los escenarios con vacunación adaptativa (línea azul continua) y sin vacunación (línea naranja discontinua, constante en cero).
+La Figura representa la evolución temporal del compartimento de vacunados inmunizados ($V_h$). En este compartimento se acumulan los individuos que han recibido la vacuna, esta ha sido eficaz (con probabilidad $\varepsilon$) y no han perdido aún la inmunidad inducida. Se comparan los escenarios con vacunación adaptativa (línea azul continua) y sin vacunación (línea naranja discontinua, constante en cero).
 
 \paragraph{Crecimiento progresivo.} En el escenario con vacunación, el número de vacunados crece de forma sostenida a lo largo del año, alcanzando aproximadamente 118 individuos hacia el día 365. Esto refleja la activación continua del programa vacunal, que responde dinámicamente al aumento de $I_h(t)$ y $\beta(t)$ como parte de una estrategia adaptativa. La acumulación progresiva indica que el ritmo de vacunación ha sido suficiente para superar la tasa de pérdida de inmunidad ($\omega$).
 
@@ -445,39 +429,15 @@ La Figura representa la evolución temporal del compartimento de vacunados inmun
 
 \paragraph{Permanencia limitada.} La curva no se estabiliza completamente, lo cual indica que hay una rotación continua de personas dentro y fuera del compartimento $V_h$. Esta rotación obedece a la pérdida de inmunidad vacunal a una tasa de $1/180$ días (aproximadamente 6 meses), consistente con estudios recientes que muestran que la inmunidad protectora de las vacunas actuales contra leptospira es de duración moderada \cite{goris2020}.
 
-\paragraph{Sin vacunación.} En ausencia de intervención (línea naranja), el compartimento permanece en cero durante todo el año, confirmando la validez del modelo y la ausencia de protección vacunal.
-
 \paragraph{Conclusión.} La curva de $V_h$ es coherente con una estrategia vacunal eficaz, de aplicación progresiva y sostenida. Su influencia se refleja en la reducción general de la carga epidémica. La duración limitada de la inmunidad exige, sin embargo, esquemas de revacunación o cobertura constante para mantener el efecto protector.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
+\subsubsection[Análisis de la Tasa de Vacunación Diaria nu(t)]{Análisis de la Tasa de Vacunación Diaria $\nu(t)$}
 
-% Agregar esta entrada al archivo referencias.bib:
-% @article{goris2020,
-%   title={Duration of immunity following vaccination against leptospirosis: A review of the available evidence},
-%   author={Goris, M.G.A. and Hartskeerl, R.A.},
-%   journal={Vaccine},
-%   volume={38},
-%   number={52},
-%   pages={8326--8335},
-%   year={2020},
-%   publisher={Elsevier}
-% }
-
-\subsubsection{Análisis de la Tasa de Vacunación Diaria $\nu(t)$}
-
-\includegraphics[width=0.85\textwidth]{vacunacion_diaria.png}
+\includegraphics[width=0.85\textwidth]{Images/tasa_vacc.png}
 \captionof{figure}{Tasa diaria de vacunación a lo largo del tiempo (solo escenario con vacunación).}
 
 
-La Figura muestra la evolución de la tasa de vacunación diaria $\nu(t)$ a lo largo del año. Esta tasa es calculada dinámicamente según la siguiente función dependiente de la prevalencia de infección y de la estacionalidad de la transmisión:
-
-\[
-\nu(t) = \nu_{\max} \cdot \left( \frac{I_h(t)}{I_h(t) + K} \right) \cdot \left( \frac{\beta_{\text{media}}(t)}{\beta_{\max}} \right)
-\]
-
-donde $\nu_{\max}$ representa la capacidad máxima de vacunación, $I_h(t)$ es el número de infectados humanos en el tiempo $t$, y $\beta(t)$ es la tasa de transmisión estacional, que alcanza su máximo en febrero.
-
+La Figura muestra la evolución de la tasa de vacunación diaria $\nu(t)$ a lo largo del año. 
 
 \paragraph{Inicio elevado de la tasa vacunal.} La curva comienza con un crecimiento rápido de la tasa vacunal desde el inicio del año hasta aproximadamente el día 60, alcanzando valores cercanos a 0.0095. Esto es coherente con el aumento inicial de infectados observado en las curvas de $I_h$ y $E_h$, y con la estacionalidad de la transmisión, que presenta su punto álgido en febrero.
 
@@ -489,20 +449,11 @@ donde $\nu_{\max}$ representa la capacidad máxima de vacunación, $I_h(t)$ es e
 
 \paragraph{Conclusión.} La estrategia vacunal utilizada, basada en la modulación de la tasa diaria $\nu(t)$, permite una asignación inteligente y oportuna de recursos. Su comportamiento se alinea de forma lógica con la dinámica epidemiológica y estacional de la leptospirosis, maximizando la eficiencia del control y minimizando vacunaciones innecesarias fuera de los periodos críticos.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
 
-% Agregar al archivo referencias.bib:
-% @misc{who2023,
-%   title = {Operational framework for managing zoonotic disease epidemics using One Health: WHO guidance},
-%   author = {World Health Organization},
-%   year = {2023},
-%   url = {https://www.who.int/publications/i/item/9789240074441}
-% }
 
-\subsubsection{Análisis de la Dinámica de Vectores ($S_v$, $I_v$, $R_v$)}
+\subsubsection[Análisis de la Dinámica de Vectores (Sv, Iv, Rv)]{Análisis de la Dinámica de Vectores (\texorpdfstring{$S_v$, $I_v$, $R_v$}{Sv, Iv, Rv})}
 
-\includegraphics[width=0.85\textwidth]{vectores.png}
+\includegraphics[width=0.85\textwidth]{Images/vectores.png}
 \captionof{figure}{Dinámica anual de la población de roedores: susceptibles ($S_v$), infectados ($I_v$) y recuperados ($R_v$) bajo escenarios con y sin vacunación humana.}
 
 La Figura presenta la evolución anual de los compartimentos de la población de vectores (roedores) susceptibles ($S_v$), infectados ($I_v$) y recuperados ($R_v$), tanto en escenarios con vacunación humana como sin ella. Aunque los roedores no son vacunados, su dinámica se ve influenciada indirectamente por la reducción de la carga infecciosa humana, dado que el modelo considera transmisión inversa humano-vector.
@@ -517,27 +468,14 @@ La Figura presenta la evolución anual de los compartimentos de la población de
 
 \paragraph{Conclusión.} La vacunación humana no sólo protege a las personas directamente, sino que también genera externalidades positivas sobre la población vectorial, disminuyendo la presión infecciosa a través de la transmisión inversa. Esto refuerza la necesidad de abordar las zoonosis desde un enfoque de salud única o One Health, como recomienda la OMS y la FAO.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
 
-% Agregar al archivo referencias.bib:
-% @article{kassa2021,
-%   title={Impact of host vaccination on vector-borne disease dynamics in a zoonotic context},
-%   author={Kassa, Samson M and et al.},
-%   journal={Ecological Modelling},
-%   volume={455},
-%   pages={109643},
-%   year={2021},
-%   publisher={Elsevier}
-% }
-
-\subsubsection{Análisis de la Dinámica de Bacterias en el Ambiente ($B_l$)}
+\subsubsection[Análisis de la Dinámica de Bacterias en el Ambiente (Bl)]{Análisis de la Dinámica de Bacterias en el Ambiente ($B_l$)}
 
 
-\includegraphics[width=0.85\textwidth]{ambiente_comparacion.png}
+\includegraphics[width=0.85\textwidth]{Images/ambiente.png}
 \captionof{figure}{Dinámica de bacterias ambientales: comparación entre escenarios sin y con vacunación.}
 
-La Figura muestra la evolución temporal del compartimento $B_l$, que representa la cantidad de bacterias *Leptospira* presentes en el ambiente (agua, suelo, zonas húmedas) en los escenarios con y sin vacunación humana. Este compartimento es esencial en la modelación ecoepidemiológica de la leptospirosis, pues actúa como reservorio infeccioso y amplificador de la transmisión indirecta.
+La Figura muestra la evolución temporal del compartimento $B_l$, que representa la cantidad de bacterias \textit{Leptospira} presentes en el ambiente (agua, suelo, zonas húmedas) en los escenarios con y sin vacunación humana. Este compartimento es esencial en la modelación ecoepidemiológica de la leptospirosis, pues actúa como reservorio infeccioso y amplificador de la transmisión indirecta.
 
 
 \paragraph{Ascenso inicial (días 0–60).} Ambas curvas muestran un crecimiento rápido en la carga ambiental de bacterias, alcanzando un primer máximo cercano al día 60. Esto está asociado al aumento de individuos infectados ($I_h$ e $I_v$), quienes excretan leptospiras al ambiente. La curva sin vacunación alcanza valores ligeramente más altos debido a la mayor prevalencia de infección en humanos y roedores, como se evidenció en los gráficos anteriores.
@@ -546,26 +484,12 @@ La Figura muestra la evolución temporal del compartimento $B_l$, que representa
 
 \paragraph{Rebrote ambiental (días 250–365).} En el último tercio del año se observa un nuevo ascenso de $B_l$, coincidiendo con el segundo pico epidémico en los compartimentos de humanos infectados. Sin embargo, la curva con vacunación mantiene una trayectoria inferior, lo que sugiere que la estrategia vacunal también modera la carga ambiental al reducir la incidencia clínica.
 
-\paragraph{Persistencia y riesgo.} Cabe destacar que la diferencia entre ambas curvas, aunque presente, no es tan marcada como en otros compartimentos. Esto se debe a la alta capacidad de *Leptospira* para sobrevivir en ambientes húmedos durante semanas o meses, dependiendo de factores como temperatura, pH y radiación UV. Esto sugiere que, si bien la vacunación reduce la contaminación ambiental, no la elimina, y debe ser complementada con medidas de saneamiento e intervención ambiental.
+\paragraph{Persistencia y riesgo.} Cabe destacar que la diferencia entre ambas curvas, aunque presente, no es tan marcada como en otros compartimentos. Esto se debe a la alta capacidad de \textit{Leptospira} para sobrevivir en ambientes húmedos durante semanas o meses, dependiendo de factores como temperatura, pH y radiación UV. Esto sugiere que, si bien la vacunación reduce la contaminación ambiental, no la elimina, y debe ser complementada con medidas de saneamiento e intervención ambiental.
 
 \paragraph{Conclusión.} El modelo confirma que la vacunación humana tiene un efecto indirecto y positivo en la reducción de la carga bacteriana ambiental, contribuyendo a cortar el ciclo ecoepidemiológico de la leptospirosis. Sin embargo, la persistencia del patógeno en el ambiente justifica acciones adicionales de control ecológico y mejoras en la infraestructura sanitaria.
 
-\bibliographystyle{plain}
-\bibliography{referencias}
 
-% Agregar al archivo referencias.bib:
-% @article{trueba2019,
-%   title={Survival of pathogenic leptospira in the environment and its implications for leptospirosis control},
-%   author={Trueba, Gabriel and Zapata, Sergio and Madrid, Kevin and Cullen, Peter},
-%   journal={Revista Panamericana de Salud Pública},
-%   volume={43},
-%   year={2019},
-%   pages={e61},
-%   publisher={PAHO}
-% }
-
-
-
+\newpage
 % ================================
 \section{Análisis Costo-Beneficio}
 
@@ -574,31 +498,22 @@ La Figura muestra la evolución temporal del compartimento $B_l$, que representa
 El análisis de costo-beneficio realizado considera los siguientes elementos:
 
 \begin{itemize}
-    \item \textbf{Casos evitados:} Se calcula la diferencia entre la incidencia acumulada de infecciones humanas en el escenario sin vacunación y con vacunación. La incidencia acumulada se estima integrando la el número de nuevos infectados ($\theta E_h$) a lo largo del periodo simulado.
+    \item \textbf{Casos evitados:} Se calcula la diferencia entre la incidencia acumulada de infecciones humanas en los escenarios sin vacunación y con vacunación. La incidencia acumulada se estima integrando  el número de nuevos infectados ($\theta E_h$) a lo largo del periodo simulado.
     \item \textbf{Costos de vacunación:} Se calcula como el producto del número total de personas vacunadas (integral de la tasa diaria de vacunación sobre los susceptibles), el costo por dosis y el número de dosis requeridas por persona.
     \item \textbf{Ahorros sanitarios:} Se estima multiplicando el número de casos evitados por la proporción de casos leves, moderados y graves, y el costo promedio asociado a cada tipo de caso.
     \item \textbf{Beneficio neto:} Diferencia entre los ahorros sanitarios y el costo total de la vacunación.
     \item \textbf{Ratio beneficio/costo:} Cociente entre los ahorros sanitarios y el costo de vacunación, indicador clave de rentabilidad.
 \end{itemize}
 
-Los valores utilizados en el análisis son:
 
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
-\usepackage{booktabs}
-\usepackage{graphicx}
-
-\begin{document}
-
-\section{Costos asociados a la leptospirosis en Brasil y la vacuna Vax-SPIRAL®}
+\subsection{Costos asociados a la leptospirosis en Brasil y la vacuna Vax-SPIRAL®}
 
 \begin{itemize}
-    \item \textbf{Costo por dosis de Vax-SPIRAL®:} USD 15\footnotemark[2]. Este valor es una estimación asumida para el análisis, ante la ausencia de información pública sobre el precio comercial de la vacuna. La cifra se basa en rangos típicos de vacunas bacterianas en América Latina y puede variar según acuerdos institucionales y subsidios.
+    \item \textbf{Costo por dosis de Vax-SPIRAL®:} USD 15. Este valor es una estimación asumida para el análisis, ante la ausencia de información pública sobre el precio comercial de la vacuna. La cifra se basa en rangos típicos de vacunas bacterianas en América Latina y puede variar según acuerdos institucionales y subsidios.
 
     \item \textbf{Proporción de casos leves:} 85\% (estimado global, incluye formas subclínicas y sintomáticas leves) \cite{who2022}.  
 
-    \item \textbf{Proporción de casos moderados:} 5\%\footnotemark[2]
+    \item \textbf{Proporción de casos moderados:} 5\%
 
     \item \textbf{Proporción de casos graves:} 10\% (requieren hospitalización, con letalidad del 5-30\%) \cite{who2022,msbrasil2021}.  
 
@@ -613,18 +528,6 @@ Los valores utilizados en el análisis son:
 
 
 
-\begin{thebibliography}{9}
-
-
-\bibitem{who2022} 
-Organización Mundial de la Salud. (2022). Leptospirosis: epidemiología y carga de enfermedad. Informe técnico.
-
-\bibitem{msbrasil2021} 
-Ministerio de Salud de Brasil. (2021). Guía de vigilancia epidemiológica: leptospirosis.
-
-\bibitem{souza2011} 
-Souza, V. et al. (2011). Costos hospitalarios de la leptospirosis en Brasil. \textit{Revista de Saúde Pública}, 45(6), 1124-1133.
-\end{thebibliography}
 
 \subsection{Resultados}
 \begin{table}[H]
@@ -647,12 +550,12 @@ Los resultados muestran que la estrategia de vacunación permitiría evitar 497 
 
 Cabe destacar que este análisis considera únicamente el costo de las dosis de vacuna y no incluye otros gastos operativos de la campaña, como personal, logística o infraestructura. Aun así, la magnitud del ahorro sanitario sugiere que la vacunación seguiría siendo económicamente favorable incluso contemplando estos costos adicionales.
 
-
+\newpage
 
 % ================================
 \section{Análisis de Sensibilidad}
 
-
+\newpage
 % ================================
 \section{Conclusiones}
 
@@ -666,6 +569,7 @@ El modelo matemático desarrollado demuestra la utilidad de incluir estrategias 
 \item La estimación de costos es preliminar y puede variar según el contexto.
 \end{itemize}
 
+\newpage
 % ================================
 \section{Próximos pasos}
 
@@ -676,10 +580,129 @@ El modelo matemático desarrollado demuestra la utilidad de incluir estrategias 
 \end{itemize}
 
 % ================================
-\section\*{Bibliografía}
+
+% ================================
+\section{Anexos}
+
+\subsection{Software desarrollado}
+
+Como parte de este trabajo, se desarrolló una herramienta interactiva en Python utilizando \texttt{streamlit} para la simulación y visualización del modelo SEIR extendido con vacunación. El software permite al usuario modificar parámetros, explorar distintos escenarios y visualizar los resultados de manera gráfica e intuitiva.
+
+El código fuente y la documentación están disponibles en el repositorio de GitHub:
+
+\begin{center}
+\url{https://github.com/Pol4720/vax-SPIRAL-CB}
+\end{center}
+
+\textbf{Características principales:}
+\begin{itemize}
+    \item Interfaz web interactiva usando \texttt{streamlit}.
+    \item Simulación de escenarios con y sin vacunación.
+    \item Ajuste de parámetros epidemiológicos y de vacunación.
+    \item Visualización de la dinámica de todos los compartimentos del modelo.
+    \item Análisis de sensibilidad y exportación de resultados.
+\end{itemize}
+
+\textbf{Requisitos:}
+\begin{itemize}
+    \item Python 3.8 o superior.
+    \item Paquetes: \texttt{streamlit}, \texttt{numpy}, \texttt{scipy}, \texttt{matplotlib}, \texttt{pandas}.
+\end{itemize}
+
+\textbf{Ejecución local:}
+\begin{verbatim}
+git clone https://github.com/Pol4720/vax-SPIRAL-CB.git
+cd vax-SPIRAL-CB
+cd Tools
+pip install -r requirements.txt
+streamlit run app.py
+\end{verbatim}
+
+Para más detalles y ejemplos de uso, consulte el archivo \texttt{README.md} en el repositorio.
+\section{Bibliografía}
 \begin{thebibliography}{9}
-\bibitem{lepto-model} Engida, H. A., Theuri, D. M., Gathungu, D., Gachohi, J., & Alemneh, H. T. (2022). A Mathematical Model Analysis for the Transmission Dynamics of Leptospirosis Disease in Human and Rodent Populations. Computational and Mathematical Methods in Medicine, 2022, Article ID 1806585.
-\bibitem{who} Organización Mundial de la Salud. Leptospirosis. Disponible en: \url{[https://www.who.int/news-room/fact-sheets/detail/leptospirosis}](https://www.who.int/news-room/fact-sheets/detail/leptospirosis})
+
+\bibitem{who2022} 
+Organización Mundial de la Salud. (2022). Leptospirosis: epidemiología y carga de enfermedad. Informe técnico.
+
+\bibitem{msbrasil2021} 
+Ministerio de Salud de Brasil. (2021). Guía de vigilancia epidemiológica: leptospirosis.
+
+\bibitem{souza2011} 
+Souza, V. et al. (2011). Costos hospitalarios de la leptospirosis en Brasil. \textit{Revista de Saúde Pública}, 45(6), 1124-1133.
+
+\bibitem{who} Organización Mundial de la Salud. Leptospirosis. Disponible en: \url{https://www.who.int/news-room/fact-sheets/detail/leptospirosis}
+
+
+\bibitem{engida2022}
+Engida, H. A., Theuri, D. M., Gathungu, D., Gachohi, J., \& Alemneh, H. T. (2022).
+A Mathematical Model Analysis for the Transmission Dynamics of Leptospirosis Disease in Human and Rodent Populations.
+\textit{Computational and Mathematical Methods in Medicine}, 2022, Article ID 1806585.
+
+\bibitem{paisanwarakiat2021}
+Paisanwarakiat, R. and Thamchai, R. (2021).
+Optimal Control of a Leptospirosis Epidemic Model.
+\textit{Science \& Technology Asia}, 2021.
+
+\bibitem{minter2019}
+Minter, A., Costa, F., Khalil, H., et al. (2019).
+Optimal control of rat-borne leptospirosis in an urban environment.
+\textit{Frontiers in Ecology and Evolution}, 7, 209.
+
+\bibitem{alemneh2020}
+Alemneh, H. T. (2020).
+A co-infection model of dengue and leptospirosis diseases.
+\textit{Advances in Difference Equations}, 2020, 23 pages.
+
+\bibitem{khan2012}
+M. A. Khan, G. Zaman, S. Islam, and M. I. Chohan,
+``Optimal campaign in leptospirosis epidemic by multiple control variables,''
+\textit{Applied Mathematics}, vol. 3, no. 11, pp. 1655--1663, 2012.
+
+\bibitem{khan2014}
+M. A. Khan, S. Islam, S. A. Khan, I. Khan, S. Shafie, and T. Gul,
+``Prevention of leptospirosis infected vector and human population by multiple control variables,''
+\textit{Abstract and Applied Analysis}, vol. 2014, Article ID 619035, 9 pages, 2014.
+
+
+\bibitem{pijnacker2019}
+Pijnacker, R., Goris, M. G. A., Wagenaar, J. F. P., Hartskeerl, R. A., Lauwerends, L. J., van der Hoek, W., \& Schimmer, B. (2019).
+Evaluating Leptospirosis Burden and Risk in the Netherlands Through Spatial Modelling and Surveillance Data.
+\textit{PLoS Neglected Tropical Diseases}, 13(9), e0007780.
+
+\bibitem{cdc2024}
+Centers for Disease Control and Prevention.
+Leptospirosis - CDC Fact Sheet.
+2024.
+\url{https://www.cdc.gov/leptospirosis/index.html}
+
+\bibitem{adler2010}
+Adler, B., \& de la Peña Moctezuma, A. (2010).
+Leptospira and leptospirosis.
+\textit{Veterinary Microbiology}, 140(3-4), 287--296.
+
+\bibitem{goris2020}
+Goris, M. G. A., \& Hartskeerl, R. A. (2020).
+Duration of immunity following vaccination against leptospirosis: A review of the available evidence.
+\textit{Vaccine}, 38(52), 8326--8335.
+
+\bibitem{who2023}
+World Health Organization.
+Operational framework for managing zoonotic disease epidemics using One Health: WHO guidance.
+2023.
+\url{https://www.who.int/publications/i/item/9789240074441}
+
+\bibitem{kassa2021}
+Kassa, S. M., et al. (2021).
+Impact of host vaccination on vector-borne disease dynamics in a zoonotic context.
+\textit{Ecological Modelling}, 455, 109643.
+
+\bibitem{trueba2019}
+Trueba, G., Zapata, S., Madrid, K., \& Cullen, P. (2019).
+Survival of pathogenic leptospira in the environment and its implications for leptospirosis control.
+\textit{Revista Panamericana de Salud Pública}, 43, e61. PAHO.
+
+
 \end{thebibliography}
 
 \end{document}
