@@ -8,6 +8,7 @@ from src.simulation import run_simulation
 from src.cost_benefit import analyze_cost_benefit
 from src.sensitivity import run_sensitivity_analysis
 from src.parameter_fitting.main import parameter_fitting_section
+from src.initial_conditions_analysis import initial_conditions_experiment
 
 st.set_page_config(layout="wide")
 st.title("Leptospirosis Vaccination Simulator")
@@ -19,8 +20,15 @@ no_vaccine_model_obj = LeptospirosisModel()
 params = vaccine_model_obj.params.copy()
 initial_conditions = vaccine_model_obj.initial_conditions.copy()
 
-# Actualizar la lista de secciones para incluir la nueva sección de ajuste de parámetros
-sections = ["Parameter Fitting", "Model Parameters", "Run Simulation", "Cost-Benefit Analysis", "Sensitivity Analysis"]
+# Reordenar las secciones: primero experimentación de condiciones iniciales
+sections = [
+    "Parameter Fitting",
+    "Model Parameters",
+    "Initial Conditions Analysis",  # Ahora antes de Run Simulation
+    "Run Simulation",
+    "Cost-Benefit Analysis",
+    "Sensitivity Analysis"
+]
 with st.sidebar:
     st.markdown(
         """
@@ -56,14 +64,27 @@ if section == "Parameter Fitting":
 elif section == "Model Parameters":
     params = show_parameters(vaccine_model_obj, no_vaccine_model_obj)
 
+# Initial Conditions Analysis Section
+elif section == "Initial Conditions Analysis":
+    # Permite modificar las condiciones iniciales y las guarda en session_state
+    def update_initial_conditions(new_ic):
+        st.session_state["initial_conditions"] = new_ic
+        vaccine_model_obj.initial_conditions = new_ic.copy()
+        no_vaccine_model_obj.initial_conditions = new_ic.copy()
+    initial_conditions_experiment(update_callback=update_initial_conditions)
+
 # Run Simulation Section
 elif section == "Run Simulation":
+    # Usar las condiciones iniciales seleccionadas en la sección previa
+    initial_conditions = st.session_state["initial_conditions"]
+    vaccine_model_obj.initial_conditions = initial_conditions.copy()
+    no_vaccine_model_obj.initial_conditions = initial_conditions.copy()
     run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_conditions)
 
 # Cost-Benefit Analysis Section
 elif section == "Cost-Benefit Analysis":
-    analyze_cost_benefit(vaccine_model_obj, params, initial_conditions)
+    analyze_cost_benefit(vaccine_model_obj, params, st.session_state["initial_conditions"])
 
 # Sensitivity Analysis Section
 elif section == "Sensitivity Analysis":
-    run_sensitivity_analysis(vaccine_model_obj, params, initial_conditions)
+    run_sensitivity_analysis(vaccine_model_obj, params, st.session_state["initial_conditions"])
