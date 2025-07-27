@@ -7,6 +7,7 @@ from src.parameters import show_parameters
 from src.simulation import run_simulation
 from src.cost_benefit import analyze_cost_benefit
 from src.sensitivity import run_sensitivity_analysis
+from src.parameter_fitting.main import parameter_fitting_section
 
 st.set_page_config(layout="wide")
 st.title("Leptospirosis Vaccination Simulator")
@@ -18,7 +19,8 @@ no_vaccine_model_obj = LeptospirosisModel()
 params = vaccine_model_obj.params.copy()
 initial_conditions = vaccine_model_obj.initial_conditions.copy()
 
-sections = ["Model Parameters", "Run Simulation", "Cost-Benefit Analysis", "Sensitivity Analysis"]
+# Actualizar la lista de secciones para incluir la nueva sección de ajuste de parámetros
+sections = ["Parameter Fitting", "Model Parameters", "Run Simulation", "Cost-Benefit Analysis", "Sensitivity Analysis"]
 with st.sidebar:
     st.markdown(
         """
@@ -46,8 +48,12 @@ with st.sidebar:
         help="Choose a section to explore"
     )
 
+# Nueva sección de ajuste de parámetros
+if section == "Parameter Fitting":
+    parameter_fitting_section(no_vaccine_model_obj)
+
 # Model Parameters Section
-if section == "Model Parameters":
+elif section == "Model Parameters":
     params = show_parameters(vaccine_model_obj, no_vaccine_model_obj)
 
 # Run Simulation Section
@@ -61,4 +67,3 @@ elif section == "Cost-Benefit Analysis":
 # Sensitivity Analysis Section
 elif section == "Sensitivity Analysis":
     run_sensitivity_analysis(vaccine_model_obj, params, initial_conditions)
-   
