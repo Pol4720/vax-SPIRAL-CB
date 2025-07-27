@@ -24,7 +24,7 @@ initial_conditions = vaccine_model_obj.initial_conditions.copy()
 sections = [
     "Parameter Fitting",
     "Model Parameters",
-    "Initial Conditions Analysis",  # Ahora antes de Run Simulation
+    "Initial Conditions Analysis",  
     "Run Simulation",
     "Cost-Benefit Analysis",
     "Sensitivity Analysis"
@@ -56,7 +56,7 @@ with st.sidebar:
         help="Choose a section to explore"
     )
 
-# Nueva sección de ajuste de parámetros
+
 if section == "Parameter Fitting":
     parameter_fitting_section(no_vaccine_model_obj)
 
