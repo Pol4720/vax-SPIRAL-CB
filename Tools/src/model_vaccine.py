@@ -153,7 +153,7 @@ class LeptospirosisVaccineModel:
             self.solution_novaccine = sol
         return sol
 
-    def plot_compartment(self):
+    def plot_compartment(self, selected=None):
         if self.solution_vaccine is None:
             self.solve(with_vaccine=True)
         if self.solution_novaccine is None:
@@ -170,12 +170,14 @@ class LeptospirosisVaccineModel:
             "Vaccination rate (personas/día)": "vaccination_rate"
         }
 
-        with st.expander("Selecciona el compartimento a visualizar", expanded=True):
-            selected = st.selectbox(
-                "Compartimento humano/vector/ambiente",
-                list(compartments.keys()),
-                index=2
-            )
+        # Solo mostrar selectbox si selected es None
+        if selected is None:
+            with st.expander("Selecciona el compartimento a visualizar", expanded=True):
+                selected = st.selectbox(
+                    "Compartimento humano/vector/ambiente",
+                    list(compartments.keys()),
+                    index=2
+                )
 
         idx = compartments[selected]
         fig, ax = plt.subplots(figsize=(10, 6))

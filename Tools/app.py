@@ -90,13 +90,19 @@ elif section == "Run Simulation":
     # Usar las condiciones iniciales seleccionadas en la sección previa
     initial_conditions = st.session_state["initial_conditions"]
     # Ajustar condiciones iniciales según el modelo
+    # Para el modelo con vacuna, asegurar longitud 9
     if len(initial_conditions) == 9:
         vaccine_model_obj.initial_conditions = initial_conditions.copy()
         no_vaccine_model_obj.initial_conditions = initial_conditions[:8]
+        ic_for_vax = initial_conditions.copy()
     elif len(initial_conditions) == 8:
         no_vaccine_model_obj.initial_conditions = initial_conditions.copy()
         vaccine_model_obj.initial_conditions = initial_conditions + [0.0]
-    run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_conditions)
+        ic_for_vax = initial_conditions + [0.0]
+    else:
+        st.error("Las condiciones iniciales deben tener 8 (sin vacuna) o 9 (con vacuna) elementos.")
+        st.stop()
+    run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, ic_for_vax)
 
 # Cost-Benefit Analysis Section
 elif section == "Cost-Benefit Analysis":

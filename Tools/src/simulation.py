@@ -41,11 +41,41 @@ def run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_cond
     sol_vax = vaccine_model_obj.solve()
     sol_no_vax = no_vaccine_model_obj.solve()
 
-    # Mostrar resultados de los métodos plot() y plot_infectious_humans() en la interfaz
+    # --- Selección de compartimento para graficar ---
     st.subheader("Resultados detallados del modelo sin vacuna")
-    no_vaccine_model_obj.plot()
+    compartimentos_nv = {
+        "Susceptibles Humanos (Sh)": 0,
+        "Expuestos Humanos (Eh)": 1,
+        "Infectados Humanos (Ih)": 2,
+        "Recuperados Humanos (Rh)": 3,
+        "Vectores (Sv, Iv, Rv)": "vectores",
+        "Bacterias en el ambiente (Bl)": 7,
+    }
+    selected_nv = st.selectbox(
+        "Compartimento a visualizar (sin vacuna)",
+        list(compartimentos_nv.keys()),
+        index=2,
+        key="sim_nv_comp"
+    )
+    no_vaccine_model_obj.plot(selected=selected_nv)
 
     st.subheader("Resultados detallados del modelo con vacuna")
-    vaccine_model_obj.plot_compartment()
+    compartimentos_vax = {
+        "Susceptible (Sh)": 0,
+        "Exposed (Eh)": 1,
+        "Infectious (Ih)": 2,
+        "Recovered (Rh)": 3,
+        "Vaccinated (Vh)": 8,
+        "Bacterias en ambiente (Bl)": 7,
+        "Todos los compartimentos de vectores": "all_vectors",
+        "Vaccination rate (personas/día)": "vaccination_rate"
+    }
+    selected_vax = st.selectbox(
+        "Compartimento a visualizar (con vacuna)",
+        list(compartimentos_vax.keys()),
+        index=2,
+        key="sim_vax_comp"
+    )
+    vaccine_model_obj.plot_compartment(selected=selected_vax)
     
     return sol_vax, sol_no_vax

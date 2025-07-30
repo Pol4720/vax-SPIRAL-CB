@@ -86,7 +86,7 @@ class LeptospirosisModel:
         )
         return self.solution
 
-    def plot(self):
+    def plot(self, selected=None):
         if self.solution is None:
             raise ValueError("No solution found. Run solve() first.")
 
@@ -99,12 +99,14 @@ class LeptospirosisModel:
             "Bacterias en el ambiente (Bl)": (7, "Cantidad de Bacterias en el Ambiente"),
         }
 
-        with st.expander("Selecciona un compartimento para graficar"):
-            selected = st.selectbox(
-                "Compartimento",
-                list(compartments.keys()),
-                index=2  # Por defecto Infectados Humanos
-            )
+        # Solo mostrar selectbox si selected es None
+        if selected is None:
+            with st.expander("Selecciona un compartimento para graficar"):
+                selected = st.selectbox(
+                    "Compartimento",
+                    list(compartments.keys()),
+                    index=2  # Por defecto Infectados Humanos
+                )
 
         idx, ylabel = compartments[selected]
 
