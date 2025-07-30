@@ -1,11 +1,11 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp, simpson
 from src.model import LeptospirosisModel
 from src.model_vaccine import LeptospirosisVaccineModel
 
-def initial_conditions_experiment(model_type="no_vaccine"):
+def initial_conditions_experiment(update_callback=None, model_type="no_vaccine"):
     st.header("Initial Conditions Analysis")
     st.markdown(
         """
@@ -30,8 +30,12 @@ def initial_conditions_experiment(model_type="no_vaccine"):
     cols = st.columns(len(ic_labels))
     ic_values = []
     for i, label in enumerate(ic_labels):
-        val = cols[i].number_input(label, min_value=0.0, value=float(default_ic[i]), step=1.0)
+        val = cols[i].number_input(label, min_value=0.0, value=float(default_ic[i]), step=1.0, key=f"ic_{label}")
         ic_values.append(val)
+
+    # Callback para actualizar condiciones iniciales globalmente
+    if update_callback is not None:
+        update_callback(ic_values)
 
     # Simulation period
     t_end = st.slider("Simulation Period (days)", 30, 3650, 365)
@@ -76,6 +80,13 @@ def initial_conditions_experiment(model_type="no_vaccine"):
         st.subheader("Sensitivity to Initial Conditions")
         delta = 0.05  # 5% perturbation
         metrics = []
+        total_infected_diffs = []
+        # Obtener theta del modelo
+        if hasattr(model, "params"):
+            theta = model.params.get("θ", 1.0)
+        else:
+            theta = 1.0
+
         for i, label in enumerate(ic_labels):
             perturbed_ic = ic_values.copy()
             perturbed_ic[i] *= (1 + delta)
@@ -88,17 +99,33 @@ def initial_conditions_experiment(model_type="no_vaccine"):
             # Metric: max Ih difference
             max_diff = np.max(np.abs(sol_pert.y[idx_ih] - sol.y[idx_ih]))
             metrics.append((label, max_diff))
+            # Total infected difference (integral of theta * Eh)
+            Eh_orig = sol.y[ic_labels.index("Eh")]
+            Eh_pert = sol_pert.y[ic_labels.index("Eh")]
+            total_inf_orig = simpson(theta * Eh_orig, t_eval)
+            total_inf_pert = simpson(theta * Eh_pert, t_eval)
+            total_infected_diffs.append((label, total_inf_pert - total_inf_orig))
 
         df_metrics = {label: diff for label, diff in metrics}
+        df_total_inf = {label: diff for label, diff in total_infected_diffs}
         st.write("Max difference in Infectious Humans (Ih) after 5% increase in each compartment:")
         st.dataframe(df_metrics, use_container_width=True)
+        st.write("Total difference in infected (integral of θ·Eh) over the period after 5% increase in each compartment:")
+        st.dataframe(df_total_inf, use_container_width=True)
 
-        # Bar plot of sensitivity
+        # Bar plot of sensitivity (max Ih diff)
         fig3, ax3 = plt.subplots(figsize=(10, 4))
         ax3.bar(df_metrics.keys(), df_metrics.values(), color='skyblue')
         ax3.set_ylabel("Max ΔIh")
         ax3.set_title("Sensitivity of Ih to Initial Conditions")
         st.pyplot(fig3)
+
+        # Bar plot of total infected difference
+        fig4, ax4 = plt.subplots(figsize=(10, 4))
+        ax4.bar(df_total_inf.keys(), df_total_inf.values(), color='salmon')
+        ax4.set_ylabel("Δ Total Infected (θ·Eh integral)")
+        ax4.set_title("Total Infected Difference (Integral) by Initial Condition")
+        st.pyplot(fig4)
 
         st.info("You can use these analyses to understand which compartments most influence the epidemic dynamics.")
 
