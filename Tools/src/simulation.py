@@ -13,7 +13,7 @@ def run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_cond
     """
     st.header("Simulation Results")
 
-    # Selector de periodo de simulación
+    # Selector de periodo de simululación con persistencia
     period_options = {
         "6 months": 182,
         "1 year": 365,
@@ -21,12 +21,17 @@ def run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_cond
         "5 years": 1825,
         "10 years": 3650
     }
+    if "selected_period" not in st.session_state:
+        st.session_state["selected_period"] = "1 year"
     selected_period = st.selectbox(
         "Select simulation period",
         list(period_options.keys()),
-        index=1
+        index=list(period_options.keys()).index(st.session_state["selected_period"]),
+        key="sim_period",
+        on_change=lambda: st.session_state.update({"selected_period": st.session_state["sim_period"]})
     )
     t_end = period_options[selected_period]
+    st.session_state["selected_period"] = selected_period
 
     # Actualizar t_span en los modelos
     t_eval = np.linspace(0, t_end, t_end + 1)
@@ -55,7 +60,8 @@ def run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_cond
         "Compartimento a visualizar (sin vacuna)",
         list(compartimentos_nv.keys()),
         index=2,
-        key="sim_nv_comp"
+        key="sim_nv_comp",
+        on_change=st.rerun
     )
     no_vaccine_model_obj.plot(selected=selected_nv)
 
@@ -74,7 +80,8 @@ def run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, initial_cond
         "Compartimento a visualizar (con vacuna)",
         list(compartimentos_vax.keys()),
         index=2,
-        key="sim_vax_comp"
+        key="sim_vax_comp",
+        on_change=st.rerun
     )
     vaccine_model_obj.plot_compartment(selected=selected_vax)
     
