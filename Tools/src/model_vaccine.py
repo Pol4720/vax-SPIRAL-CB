@@ -51,17 +51,26 @@ class LeptospirosisVaccineModel:
             'ω': 1/180
         }
         # Default initial conditions
-        self.initial_conditions = initial_conditions or [
-            270,  # Sh
-            20,   # Eh
-            10,    # Ih
-            0,    # Rh
-            510,  # Sv
-            10,   # Iv
-            0,    # Rv
-            100,    # Bl
-            0     # Vh (vaccinated humans)
-        ]
+        if initial_conditions is None:
+            tau1 = self.params['τ1']
+            tau2 = self.params['τ2']
+            mu_b = self.params['μb']
+            Ih_star = 10
+            Iv_star = 10
+            Bl_star = (tau1 * Ih_star + tau2 * Iv_star) / mu_b if mu_b > 0 else 0.0
+            self.initial_conditions = [
+                270,  # Sh
+                20,   # Eh
+                Ih_star,    # Ih
+                0,    # Rh
+                510,  # Sv
+                Iv_star,   # Iv
+                0,    # Rv
+                Bl_star,    # Bl calculado
+                0     # Vh (vaccinated humans)
+            ]
+        else:
+            self.initial_conditions = initial_conditions
         self.t_span = t_span
         self.t_eval = np.linspace(*t_span, t_span[1] - t_span[0] + 1)
         self.solution_vaccine = None

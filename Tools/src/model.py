@@ -27,16 +27,26 @@ class LeptospirosisModel:
             'τ2': 0.2
         }
         # Default initial conditions
-        self.initial_conditions = initial_conditions or [
-            270,  # Sh
-            20,   # Eh
-            10,    # Ih
-            0,    # Rh
-            510,  # Sv
-            10,   # Iv
-            0,    # Rv
-            100   # Bl
-        ]
+        if initial_conditions is None:
+            # Calcular Bl* según la fórmula
+            tau1 = self.params['τ1']
+            tau2 = self.params['τ2']
+            mu_b = self.params['μb']
+            Ih_star = 10
+            Iv_star = 10
+            Bl_star = (tau1 * Ih_star + tau2 * Iv_star) / mu_b if mu_b > 0 else 0.0
+            self.initial_conditions = [
+                270,  # Sh
+                20,   # Eh
+                Ih_star,    # Ih
+                0,    # Rh
+                510,  # Sv
+                Iv_star,   # Iv
+                0,    # Rv
+                Bl_star   # Bl calculado
+            ]
+        else:
+            self.initial_conditions = initial_conditions
         self.solution = None
         self.A = 0.4  # Amplitud estacional
         self.t_pico = 2  # Mes de máximo (febrero)
