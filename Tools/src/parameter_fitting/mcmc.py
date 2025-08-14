@@ -7,14 +7,15 @@ import pandas as pd
 import corner
 from .utils import create_model_copy, evaluate_model, calculate_metrics
 
-def run_mcmc(model_obj, real_data, selected_params, data_type, n_walkers=20, n_steps=500, burn_in=100):
+def run_mcmc(model_obj, real_data, adjustable_params, fixed_params, data_type, n_walkers=20, n_steps=500, burn_in=100):
     """
     Ejecuta el algoritmo MCMC para ajustar los parámetros.
     
     Args:
         model_obj: Modelo de leptospirosis
         real_data: DataFrame con datos reales
-        selected_params: Diccionario de parámetros a ajustar con sus límites
+        adjustable_params: Diccionario de parámetros ajustables con sus límites
+        fixed_params: Diccionario de parámetros fijos con sus valores
         data_type: Tipo de datos (casos, compartimentos, etc.)
         n_walkers: Número de walkers
         n_steps: Número de pasos
@@ -23,15 +24,17 @@ def run_mcmc(model_obj, real_data, selected_params, data_type, n_walkers=20, n_s
     Returns:
         tuple: (samples, param_names, log_prob_samples, best_params)
     """
-    param_names = list(selected_params.keys())
+    param_names = list(adjustable_params.keys())
     ndim = len(param_names)
-    
+
     # Función de verosimilitud dependiente del tipo de datos
     def log_likelihood(theta):
         # Actualizar parámetros del modelo
         params = model_obj.params.copy()
         for i, param in enumerate(param_names):
             params[param] = theta[i]
+        for param, val in fixed_params.items():
+            params[param] = val
         
         # Ejecutar modelo con los parámetros actualizados
         model_copy = create_model_copy(model_obj, params)
@@ -67,7 +70,7 @@ def run_mcmc(model_obj, real_data, selected_params, data_type, n_walkers=20, n_s
     # Prior uniforme
     def log_prior(theta):
         for i, param in enumerate(param_names):
-            if not (selected_params[param][0] <= theta[i] <= selected_params[param][1]):
+            if not (adjustable_params[param][0] <= theta[i] <= adjustable_params[param][1]):
                 return -np.inf
         return 0.0
     
@@ -81,7 +84,7 @@ def run_mcmc(model_obj, real_data, selected_params, data_type, n_walkers=20, n_s
     # Posición inicial para los walkers
     initial_positions = []
     for param in param_names:
-        min_val, max_val = selected_params[param]
+        min_val, max_val = adjustable_params[param]
         initial_positions.append(np.random.uniform(min_val, max_val, n_walkers))
     
     pos = np.array(initial_positions).T
@@ -104,7 +107,7 @@ def run_mcmc(model_obj, real_data, selected_params, data_type, n_walkers=20, n_s
     
     return samples, param_names, log_prob_samples, best_params
 
-def display_mcmc_results(model_obj, real_data, samples, param_names, log_prob_samples, best_params, updated_params, data_type):
+def display_mcmc_results(model_obj, real_data, samples, param_names, log_prob_samples, best_params, updated_params, data_type, fixed_params=None):
     """
     Muestra los resultados del ajuste MCMC.
     
@@ -117,18 +120,19 @@ def display_mcmc_results(model_obj, real_data, samples, param_names, log_prob_sa
         best_params: Mejores parámetros encontrados
         updated_params: Parámetros actualizados del modelo
         data_type: Tipo de datos utilizados para el ajuste
+        fixed_params: Parámetros fijos y sus valores
     """
     st.subheader("Resultados del MCMC")
     
     # Tabla de mejores parámetros
     results_df = pd.DataFrame({
-        "Parámetro": param_names,
-        "Valor Original": [model_obj.params[p] for p in param_names],
-        "Valor Ajustado": best_params,
-        "Diferencia (%)": [(best_params[i] - model_obj.params[p]) / model_obj.params[p] * 100 for i, p in enumerate(param_names)]
+        "Parámetro": param_names + (list(fixed_params.keys()) if fixed_params else []),
+        "Valor Original": [model_obj.params[p] for p in param_names] + ([model_obj.params[p] for p in fixed_params.keys()] if fixed_params else []),
+        "Valor Ajustado": list(best_params) + ([fixed_params[p] for p in fixed_params.keys()] if fixed_params else []),
+        "Tipo": ["Ajustado"] * len(param_names) + (["Fijado"] * len(fixed_params) if fixed_params else [])
     })
     
-    st.write("Mejores parámetros encontrados:")
+    st.write("Parámetros ajustados y fijados:")
     st.dataframe(results_df)
     
     # Visualización de la distribución posterior

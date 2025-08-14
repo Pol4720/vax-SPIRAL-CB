@@ -5,14 +5,15 @@ import pandas as pd
 from scipy.optimize import differential_evolution, minimize, basinhopping
 from .utils import create_model_copy, evaluate_model, calculate_metrics
 
-def run_metaheuristic(model_obj, real_data, selected_params, optimizer, data_type, max_iter=50):
+def run_metaheuristic(model_obj, real_data, adjustable_params, fixed_params, optimizer, data_type, max_iter=50):
     """
     Ejecuta algoritmos metaheurísticos para ajustar los parámetros.
     
     Args:
         model_obj: Modelo de leptospirosis
         real_data: DataFrame con datos reales
-        selected_params: Diccionario de parámetros a ajustar con sus límites
+        adjustable_params: Diccionario de parámetros ajustables con sus límites
+        fixed_params: Diccionario de parámetros fijos
         optimizer: Algoritmo a utilizar
         data_type: Tipo de datos (casos, compartimentos, etc.)
         max_iter: Máximo de iteraciones
@@ -20,8 +21,8 @@ def run_metaheuristic(model_obj, real_data, selected_params, optimizer, data_typ
     Returns:
         tuple: (best_params, best_score, convergence)
     """
-    param_names = list(selected_params.keys())
-    bounds = [selected_params[param] for param in param_names]
+    param_names = list(adjustable_params.keys())
+    bounds = [adjustable_params[param] for param in param_names]
     
     # Convergencia
     convergence = []
@@ -30,8 +31,12 @@ def run_metaheuristic(model_obj, real_data, selected_params, optimizer, data_typ
     def objective_function(theta):
         # Actualizar parámetros del modelo
         params = model_obj.params.copy()
+        # Establecer parámetros ajustables
         for i, param in enumerate(param_names):
             params[param] = theta[i]
+        # Establecer parámetros fijos
+        for param, val in fixed_params.items():
+            params[param] = val
         
         # Ejecutar modelo con los parámetros actualizados
         model_copy = create_model_copy(model_obj, params)
@@ -99,7 +104,7 @@ def run_metaheuristic(model_obj, real_data, selected_params, optimizer, data_typ
     
     return result.x, result.fun, convergence
 
-def display_metaheuristic_results(model_obj, real_data, best_params, best_score, convergence, param_names, updated_params, data_type):
+def display_metaheuristic_results(model_obj, real_data, best_params, best_score, convergence, param_names, updated_params, data_type, fixed_params=None):
     """
     Muestra los resultados del ajuste metaheurístico.
     
@@ -112,18 +117,19 @@ def display_metaheuristic_results(model_obj, real_data, best_params, best_score,
         param_names: Nombres de los parámetros ajustados
         updated_params: Parámetros actualizados del modelo
         data_type: Tipo de datos utilizados para el ajuste
+        fixed_params: Parámetros fijos, si los hay
     """
     st.subheader("Resultados de la Optimización")
     
-    # Tabla de mejores parámetros
+    # Mostrar tabla con parámetros ajustados y fijados
     results_df = pd.DataFrame({
-        "Parámetro": param_names,
-        "Valor Original": [model_obj.params[p] for p in param_names],
-        "Valor Ajustado": best_params,
-        "Diferencia (%)": [(best_params[i] - model_obj.params[p]) / model_obj.params[p] * 100 for i, p in enumerate(param_names)]
+        "Parámetro": param_names + (list(fixed_params.keys()) if fixed_params else []),
+        "Valor Original": [model_obj.params[p] for p in param_names] + ([model_obj.params[p] for p in fixed_params.keys()] if fixed_params else []),
+        "Valor Ajustado": list(best_params) + ([fixed_params[p] for p in fixed_params.keys()] if fixed_params else []),
+        "Tipo": ["Ajustado"] * len(param_names) + (["Fijado"] * len(fixed_params) if fixed_params else [])
     })
     
-    st.write("Mejores parámetros encontrados:")
+    st.write("Parámetros ajustados y fijados:")
     st.dataframe(results_df)
     
     # Gráfico de convergencia

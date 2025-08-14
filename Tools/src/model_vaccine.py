@@ -152,9 +152,12 @@ class LeptospirosisVaccineModel:
         params = self.params.copy()
         if not with_vaccine:
             params['ϕ'] = 0
+        # Detectar si el sistema es stiff por condiciones iniciales grandes
+        total_pop = sum(self.initial_conditions)
+        method = 'LSODA' if total_pop > 1000 else 'RK45'
         sol = solve_ivp(
             lambda t, y: self.model(t, y, params),
-            self.t_span, self.initial_conditions, t_eval=self.t_eval, method='RK45'
+            self.t_span, self.initial_conditions, t_eval=self.t_eval, method=method
         )
         if with_vaccine:
             self.solution_vaccine = sol

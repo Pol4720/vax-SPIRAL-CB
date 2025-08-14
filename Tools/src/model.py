@@ -87,12 +87,15 @@ class LeptospirosisModel:
 
     def solve(self, t_span=(0, 365), num_points=366):
         t_eval = np.linspace(*t_span, num_points)
+        # Detectar si el sistema es stiff por condiciones iniciales grandes
+        total_pop = sum(self.initial_conditions)
+        method = 'LSODA' if total_pop > 1000 else 'RK45'
         self.solution = solve_ivp(
             fun=self.model,
             t_span=t_span,
             y0=self.initial_conditions,
             t_eval=t_eval,
-            method='RK45'
+            method=method
         )
         return self.solution
 

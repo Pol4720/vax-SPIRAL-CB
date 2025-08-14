@@ -40,7 +40,7 @@ def evaluate_model(model_obj, real_data, data_type):
         t_span=t_span,
         y0=model_obj.initial_conditions,
         t_eval=t_eval,
-        method='RK45'
+        method='LSODA' if sum(model_obj.initial_conditions) > 1000 else 'RK45'
     )
     
     # Extraer predicciones según el tipo de datos
