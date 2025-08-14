@@ -17,10 +17,13 @@ st.title("Leptospirosis Vaccination Simulator")
 vaccine_model_obj = LeptospirosisVaccineModel()
 no_vaccine_model_obj = LeptospirosisModel()
 
-params = vaccine_model_obj.params.copy()
-initial_conditions = vaccine_model_obj.initial_conditions.copy()
+# --- Inicializar session_state para params y initial_conditions ---
+if "params" not in st.session_state:
+    st.session_state["params"] = vaccine_model_obj.params.copy()
+if "initial_conditions" not in st.session_state:
+    st.session_state["initial_conditions"] = vaccine_model_obj.initial_conditions.copy()
 
-# Reordenar las secciones: primero experimentación de condiciones iniciales
+# --- Secciones ---
 sections = [
     "Parameter Fitting",
     "Model Parameters",
@@ -56,41 +59,39 @@ with st.sidebar:
         help="Choose a section to explore"
     )
 
-
-# Inicializar condiciones iniciales en session_state según el modelo seleccionado
-if "initial_conditions" not in st.session_state:
-    # Por defecto, usar las condiciones iniciales del modelo con vacuna (9 compartimentos)
-    st.session_state["initial_conditions"] = vaccine_model_obj.initial_conditions.copy()
-
+# --- Sección Parameter Fitting ---
 if section == "Parameter Fitting":
+    # Usar los parámetros y condiciones iniciales actuales
+    no_vaccine_model_obj.params = st.session_state["params"].copy()
+    no_vaccine_model_obj.initial_conditions = st.session_state["initial_conditions"][:8]
     parameter_fitting_section(no_vaccine_model_obj)
 
-# Model Parameters Section
+# --- Sección Model Parameters ---
 elif section == "Model Parameters":
+    # Pasar los modelos y actualizar session_state con los valores editados
     params = show_parameters(vaccine_model_obj, no_vaccine_model_obj)
+    st.session_state["params"] = params.copy()
+    st.session_state["initial_conditions"] = vaccine_model_obj.initial_conditions.copy()
 
-# Initial Conditions Analysis Section
+# --- Sección Initial Conditions Analysis ---
 elif section == "Initial Conditions Analysis":
-    # Detectar el modelo seleccionado y ajustar el tamaño de las condiciones iniciales
     def update_initial_conditions(new_ic):
         st.session_state["initial_conditions"] = new_ic
         # Ajustar condiciones iniciales según el número de compartimentos de cada modelo
         if len(new_ic) == 9:
             vaccine_model_obj.initial_conditions = new_ic.copy()
-            # Para el modelo sin vacuna, usar solo los primeros 8 compartimentos
             no_vaccine_model_obj.initial_conditions = new_ic[:8]
         elif len(new_ic) == 8:
             no_vaccine_model_obj.initial_conditions = new_ic.copy()
-            # Para el modelo con vacuna, agregar 0 para Vh si falta
             vaccine_model_obj.initial_conditions = new_ic + [0.0]
     initial_conditions_experiment(update_callback=update_initial_conditions)
 
-# Run Simulation Section
+# --- Sección Run Simulation ---
 elif section == "Run Simulation":
-    # Usar las condiciones iniciales seleccionadas en la sección previa
+    # Usar los parámetros y condiciones iniciales actuales
+    params = st.session_state["params"].copy()
     initial_conditions = st.session_state["initial_conditions"]
     # Ajustar condiciones iniciales según el modelo
-    # Para el modelo con vacuna, asegurar longitud 9
     if len(initial_conditions) == 9:
         vaccine_model_obj.initial_conditions = initial_conditions.copy()
         no_vaccine_model_obj.initial_conditions = initial_conditions[:8]
@@ -102,22 +103,29 @@ elif section == "Run Simulation":
     else:
         st.error("Las condiciones iniciales deben tener 8 (sin vacuna) o 9 (con vacuna) elementos.")
         st.stop()
+    # Pasar los parámetros editados a ambos modelos
+    vaccine_model_obj.params = params.copy()
+    no_vaccine_model_obj.params = {k: v for k, v in params.items() if k in no_vaccine_model_obj.params}
     run_simulation(vaccine_model_obj, no_vaccine_model_obj, params, ic_for_vax)
 
-# Cost-Benefit Analysis Section
+# --- Sección Cost-Benefit Analysis ---
 elif section == "Cost-Benefit Analysis":
+    params = st.session_state["params"].copy()
     initial_conditions = st.session_state["initial_conditions"]
     if len(initial_conditions) == 9:
         vaccine_model_obj.initial_conditions = initial_conditions.copy()
     elif len(initial_conditions) == 8:
         vaccine_model_obj.initial_conditions = initial_conditions + [0.0]
+    vaccine_model_obj.params = params.copy()
     analyze_cost_benefit(vaccine_model_obj, params, vaccine_model_obj.initial_conditions)
 
-# Sensitivity Analysis Section
+# --- Sección Sensitivity Analysis ---
 elif section == "Sensitivity Analysis":
+    params = st.session_state["params"].copy()
     initial_conditions = st.session_state["initial_conditions"]
     if len(initial_conditions) == 9:
         vaccine_model_obj.initial_conditions = initial_conditions.copy()
     elif len(initial_conditions) == 8:
         vaccine_model_obj.initial_conditions = initial_conditions + [0.0]
+    vaccine_model_obj.params = params.copy()
     run_sensitivity_analysis(vaccine_model_obj, params, vaccine_model_obj.initial_conditions)

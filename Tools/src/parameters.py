@@ -64,4 +64,8 @@ def show_parameters(vaccine_model_obj, no_vaccine_model_obj):
     vaccine_model_obj.params = params.copy()
     no_vaccine_model_obj.params = {k: v for k, v in params.items() if k in no_vaccine_model_obj.params}
 
+    # --- Persistir en session_state ---
+    st.session_state["params"] = params.copy()
+    st.session_state["initial_conditions"] = initial_conditions.copy()
+
     return params
